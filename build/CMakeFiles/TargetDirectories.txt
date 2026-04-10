@@ -1,0 +1,3 @@
+/home/rayo/minecraft-clone-opengl/build/CMakeFiles/OpenGL.dir
+/home/rayo/minecraft-clone-opengl/build/CMakeFiles/edit_cache.dir
+/home/rayo/minecraft-clone-opengl/build/CMakeFiles/rebuild_cache.dir
