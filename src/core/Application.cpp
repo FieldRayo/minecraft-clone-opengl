@@ -1,10 +1,13 @@
 #include "Application.h"
 
+#include <iostream>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #include "Window.h"
 #include "Input.h"
 #include "renderer/Renderer.h"
+#include "renderer/Shader.h"
 
 Application::Application() {
     Init();
@@ -13,6 +16,13 @@ Application::Application() {
 Application::~Application() = default;
 
 void Application::Run() {
+
+    Shader shaders({
+        { GL_VERTEX_SHADER, "shaders/vertex.glsl" },
+        { GL_FRAGMENT_SHADER, "shaders/fragment.glsl" }
+    });
+
+    shaders.use();
 
     Input::Init(m_window->GetHandle());
     while (m_running && m_window->isOpen()) {
