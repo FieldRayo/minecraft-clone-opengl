@@ -273,6 +273,30 @@ src/renderer/Renderer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGL.dir/build.make CMakeFiles/OpenGL.dir/src/renderer/Renderer.cpp.s
 .PHONY : src/renderer/Renderer.cpp.s
 
+src/renderer/Shader.o: src/renderer/Shader.cpp.o
+.PHONY : src/renderer/Shader.o
+
+# target to build an object file
+src/renderer/Shader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGL.dir/build.make CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.o
+.PHONY : src/renderer/Shader.cpp.o
+
+src/renderer/Shader.i: src/renderer/Shader.cpp.i
+.PHONY : src/renderer/Shader.i
+
+# target to preprocess a source file
+src/renderer/Shader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGL.dir/build.make CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.i
+.PHONY : src/renderer/Shader.cpp.i
+
+src/renderer/Shader.s: src/renderer/Shader.cpp.s
+.PHONY : src/renderer/Shader.s
+
+# target to generate assembly for a file
+src/renderer/Shader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OpenGL.dir/build.make CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.s
+.PHONY : src/renderer/Shader.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -300,6 +324,9 @@ help:
 	@echo "... src/renderer/Renderer.o"
 	@echo "... src/renderer/Renderer.i"
 	@echo "... src/renderer/Renderer.s"
+	@echo "... src/renderer/Shader.o"
+	@echo "... src/renderer/Shader.i"
+	@echo "... src/renderer/Shader.s"
 .PHONY : help
 
 

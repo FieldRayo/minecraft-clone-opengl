@@ -14,6 +14,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/rayo/minecraft-clone-opengl/src/core/Window.cpp" "CMakeFiles/OpenGL.dir/src/core/Window.cpp.o" "gcc" "CMakeFiles/OpenGL.dir/src/core/Window.cpp.o.d"
   "/home/rayo/minecraft-clone-opengl/src/main.cpp" "CMakeFiles/OpenGL.dir/src/main.cpp.o" "gcc" "CMakeFiles/OpenGL.dir/src/main.cpp.o.d"
   "/home/rayo/minecraft-clone-opengl/src/renderer/Renderer.cpp" "CMakeFiles/OpenGL.dir/src/renderer/Renderer.cpp.o" "gcc" "CMakeFiles/OpenGL.dir/src/renderer/Renderer.cpp.o.d"
+  "/home/rayo/minecraft-clone-opengl/src/renderer/Shader.cpp" "CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.o" "gcc" "CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.o.d"
   "" "OpenGL" "gcc" "CMakeFiles/OpenGL.dir/link.d"
   )
 

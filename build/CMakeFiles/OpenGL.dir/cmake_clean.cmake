@@ -12,6 +12,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/OpenGL.dir/src/main.cpp.o.d"
   "CMakeFiles/OpenGL.dir/src/renderer/Renderer.cpp.o"
   "CMakeFiles/OpenGL.dir/src/renderer/Renderer.cpp.o.d"
+  "CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.o"
+  "CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.o.d"
   "OpenGL"
   "OpenGL.pdb"
 )

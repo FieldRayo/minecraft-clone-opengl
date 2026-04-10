@@ -8,6 +8,7 @@ OpenGL: \
   CMakeFiles/OpenGL.dir/src/core/Window.cpp.o \
   CMakeFiles/OpenGL.dir/src/main.cpp.o \
   CMakeFiles/OpenGL.dir/src/renderer/Renderer.cpp.o \
+  CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.o \
   /usr/lib/libglfw.so.3.4 \
   /usr/lib/libGLX.so \
   /usr/lib/libOpenGL.so \
@@ -66,6 +67,8 @@ CMakeFiles/OpenGL.dir/src/core/Window.cpp.o:
 CMakeFiles/OpenGL.dir/src/main.cpp.o:
 
 CMakeFiles/OpenGL.dir/src/renderer/Renderer.cpp.o:
+
+CMakeFiles/OpenGL.dir/src/renderer/Shader.cpp.o:
 
 /usr/lib/libglfw.so.3.4:
 
