@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <glad/glad.h>
+
 #include "core/Settings.h"
 #include "core/Application.h"
 

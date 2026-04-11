@@ -8,6 +8,9 @@
 #include "Input.h"
 #include "renderer/Renderer.h"
 #include "renderer/Shader.h"
+#include "renderer/VertexArray.h"
+#include "renderer/VertexBuffer.h"
+#include "renderer/BufferLayout.h"
 
 Application::Application() {
     Init();
@@ -24,6 +27,28 @@ void Application::Run() {
 
     shaders.use();
 
+    VertexArray VAO;
+    VertexBuffer VBO;
+
+    BufferLayout layout;
+    layout.size = 3;
+    layout.type = GL_FLOAT;
+    layout.normalized = false;
+
+    VAO.AddVertexBuffer(VBO, layout);
+
+    std::vector<glm::vec3> positions = {
+        { -0.5f, -0.5f, 0.0f },
+        { -0.5f,  0.5f, 0.0f },
+        { 0.5f,  -0.5f, 0.0f }
+    };
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        positions.size() * sizeof(glm::vec3),
+        positions.data(),
+        GL_STATIC_DRAW
+    );
+
     Input::Init(m_window->GetHandle());
     while (m_running && m_window->isOpen()) {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -33,9 +58,14 @@ void Application::Run() {
             Shutdown();
         }
 
+        VAO.Bind();
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         m_window->SwapBuffers();
         m_window->PollEvents();
     }
+    
+    Shutdown();
 }
 
 void Application::Init() {

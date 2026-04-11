@@ -20,6 +20,10 @@ target_include_directories(OpenGL PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+target_compile_definitions(OpenGL PRIVATE
+    $<$<CONFIG:Debug>:DEBUG>
+)
+
 target_link_libraries(OpenGL
     OpenGL::GL
     glfw
