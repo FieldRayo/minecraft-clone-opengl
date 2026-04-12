@@ -14,7 +14,7 @@ unsigned int ShaderDataTypeToGLType(ShaderDataType type);
 class VertexArray{
     unsigned int ID = 0;
 
-    std::vector<VertexBuffer> m_vertexBuffers;
+    std::vector<std::unique_ptr<VertexBuffer>> m_vertexBuffers;
     std::unique_ptr<IndexBuffer> m_indexBuffer;
 
     unsigned int m_vertexBufferIndex = 0;
@@ -31,9 +31,9 @@ public:
     void Bind() const;
     void UnBind() const;
 
-    void AddVertexBuffer(const VertexBuffer& vertexBuffer, const BufferLayout& layout);
+    void AddVertexBuffer(std::unique_ptr<VertexBuffer>& vertexBuffer, const BufferLayout& layout);
     void SetIndexBuffer(std::unique_ptr<IndexBuffer>& indexBuffer);
 
-    const std::vector<VertexBuffer>& GetVertexBuffers() const { return m_vertexBuffers; }
+    const std::vector<std::unique_ptr<VertexBuffer>>& GetVertexBuffers() const { return m_vertexBuffers; }
     const std::unique_ptr<IndexBuffer>& GetIndexBuffer() const { return m_indexBuffer; }
 };

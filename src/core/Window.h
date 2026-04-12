@@ -23,11 +23,9 @@ public:
 
     ~Window() = default;
     
-    // Getters
     bool isOpen() const;
     GLFWwindow* GetHandle() const;
     
-    // Setters
     void RequestClose();
 
     bool Init();

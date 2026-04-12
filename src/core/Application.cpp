@@ -11,6 +11,9 @@
 #include "renderer/VertexArray.h"
 #include "renderer/VertexBuffer.h"
 #include "renderer/BufferLayout.h"
+#include "renderer/IndexBuffer.h"
+#include "voxel/ChunkMesh.h"
+#include "voxel/Chunk.h"
 
 Application::Application() {
     Init();
@@ -27,22 +30,23 @@ void Application::Run() {
 
     shaders.use();
 
-    float vertices[] = {
-        // position          // color
-        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-         0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f
-    };
+    Chunk chunk;
+    ChunkMesh chunkMesh;
+    chunkMesh.Build(chunk);
 
-    VertexBuffer VBO(vertices, sizeof(vertices));
-    VertexArray VAO;
+    const auto& vertices = chunkMesh.GetVertices();
+    const auto& indices = chunkMesh.GetIndices();
+
+    auto VBO = std::make_unique<VertexBuffer>(vertices.data(), vertices.size() * sizeof(float));
+    auto VAO = std::make_unique<VertexArray>();
+    auto IBO = std::make_unique<IndexBuffer>(indices.data(), indices.size());
 
     BufferLayout layout({
-        { "aPos", ShaderDataType::Float3 },
-        { "aCol", ShaderDataType::Float3 }
+        { "aPos", ShaderDataType::Float3 }
     });
 
-    VAO.AddVertexBuffer(VBO, layout);
+    VAO->AddVertexBuffer(VBO, layout);
+    VAO->SetIndexBuffer(IBO);
 
     Input::Init(m_window->GetHandle());
     while (m_running && m_window->isOpen()) {
@@ -53,8 +57,8 @@ void Application::Run() {
             Shutdown();
         }
 
-        VAO.Bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        VAO->Bind();
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
         m_window->SwapBuffers();
         m_window->PollEvents();

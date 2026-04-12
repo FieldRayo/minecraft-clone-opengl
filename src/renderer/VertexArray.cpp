@@ -49,9 +49,9 @@ void VertexArray::UnBind() const {
     glBindVertexArray(0);
 }
 
-void VertexArray::AddVertexBuffer(const VertexBuffer& vertexBuffer, const BufferLayout& layout) {
+void VertexArray::AddVertexBuffer(std::unique_ptr<VertexBuffer>& vertexBuffer, const BufferLayout& layout) {
     Bind();
-    vertexBuffer.Bind();
+    vertexBuffer->Bind();
     
     for(auto& element : layout.GetElements()) {
         glEnableVertexAttribArray(m_vertexBufferIndex);
