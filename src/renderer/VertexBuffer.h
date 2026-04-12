@@ -3,10 +3,12 @@
 #include <cstdint>
 
 class VertexBuffer {
-public:
     unsigned int ID;
+public:
     VertexBuffer();
     ~VertexBuffer();
+
+    VertexBuffer(const void* data, uint32_t size);
 
     VertexBuffer(const VertexBuffer&) = delete;
     VertexBuffer& operator=(const VertexBuffer&) = delete;

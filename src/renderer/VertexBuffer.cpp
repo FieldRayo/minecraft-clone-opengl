@@ -11,6 +11,11 @@ VertexBuffer::~VertexBuffer() {
    glDeleteBuffers(1, &ID);
 }
 
+VertexBuffer::VertexBuffer(const void* data, uint32_t size) {
+    glGenBuffers(1, &ID);
+    SetData(data, size);
+}
+
 VertexBuffer::VertexBuffer(VertexBuffer&& other) noexcept {
     ID = other.ID;
     other.ID = 0;

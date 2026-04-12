@@ -27,19 +27,20 @@ void Application::Run() {
 
     shaders.use();
 
-    VertexArray VAO;
-    VertexBuffer VBO;
-
-    BufferElement element("a_pos", ShaderDataType::Float3);
-    BufferLayout layout({ element });
-
-    float positions[3][3] = {
-        { -0.5f, -0.5f, 0.0f },
-        { -0.5f,  0.5f, 0.0f },
-        { 0.5f,  -0.5f, 0.0f }
+    float vertices[] = {
+        // position          // color
+        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+         0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f
     };
 
-    VBO.SetData(positions, 4*3*3);
+    VertexBuffer VBO(vertices, sizeof(vertices));
+    VertexArray VAO;
+
+    BufferLayout layout({
+        { "aPos", ShaderDataType::Float3 },
+        { "aCol", ShaderDataType::Float3 }
+    });
 
     VAO.AddVertexBuffer(VBO, layout);
 
