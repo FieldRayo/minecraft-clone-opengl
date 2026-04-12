@@ -33,19 +33,15 @@ void Application::Run() {
     BufferElement element("a_pos", ShaderDataType::Float3);
     BufferLayout layout({ element });
 
-    VAO.AddVertexBuffer(VBO, layout);
-
-    std::vector<glm::vec3> positions = {
+    float positions[3][3] = {
         { -0.5f, -0.5f, 0.0f },
         { -0.5f,  0.5f, 0.0f },
         { 0.5f,  -0.5f, 0.0f }
     };
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        positions.size() * sizeof(glm::vec3),
-        positions.data(),
-        GL_STATIC_DRAW
-    );
+
+    VBO.SetData(positions, 4*3*3);
+
+    VAO.AddVertexBuffer(VBO, layout);
 
     Input::Init(m_window->GetHandle());
     while (m_running && m_window->isOpen()) {

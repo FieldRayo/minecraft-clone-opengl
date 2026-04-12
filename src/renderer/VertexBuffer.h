@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 class VertexBuffer {
 public:
     unsigned int ID;
@@ -14,4 +16,6 @@ public:
 
     void Bind() const;
     void UnBind() const;
+
+    void SetData(const void* data, uint32_t size);
 };
