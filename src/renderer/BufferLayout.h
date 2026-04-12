@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
+#include <initializer_list>
+#include <vector>
 
 #include "core/Assert.h"
 
@@ -12,36 +15,38 @@ enum class ShaderDataType {
     Bool
 };
 
-static uint32_t ShaderDataTypeSize(ShaderDataType type) {
-    switch (type) {
-        case ShaderDataType::Float  : return 4;
-        case ShaderDataType::Float2 : return 4 * 2;
-        case ShaderDataType::Float3 : return 4 * 3;
-        case ShaderDataType::Float4 : return 4 * 4;
+uint32_t ShaderDataTypeSize(ShaderDataType type);
 
-        case ShaderDataType::Int  : return 4;
-        case ShaderDataType::Int2 : return 4 * 2;
-        case ShaderDataType::Int3 : return 4 * 3;
-        case ShaderDataType::Int4 : return 4 * 4;
+struct BufferElement{
+    std::string Name;
+    ShaderDataType Type;
+    uint32_t Size;
+    size_t Offset;
+    bool Normalized;
 
-        case ShaderDataType::Mat3 : return 4 * 3 * 3;
-        case ShaderDataType::Mat4 : return 4 * 4 * 4;
+    BufferElement() = default;
+    BufferElement(const std::string& name, ShaderDataType type, bool normalized=false);
 
-        case ShaderDataType::Bool : return 1;
-    }
+    uint32_t GetComponentCount() const;
+};
 
-    ACE_ASSERT(false, "Unknow ShaderDataType!");
-
-    return 0;
-}
 
 class BufferLayout {
-    
+    std::vector<BufferElement> m_elements;
+    uint32_t m_stride = 0;
 public:
     BufferLayout() = default;
     ~BufferLayout() = default;
 
-    int size;
-    unsigned int type;
-    bool normalized;
+    BufferLayout(std::initializer_list<BufferElement> elements);
+
+    const std::vector<BufferElement>& GetElements() const { return m_elements; }
+    const uint32_t& GetStride() const { return m_stride; }
+    
+    std::vector<BufferElement>::iterator begin() { return m_elements.begin(); }
+    std::vector<BufferElement>::iterator end() { return m_elements.end(); }
+    std::vector<BufferElement>::const_iterator begin() const { return m_elements.begin(); }
+    std::vector<BufferElement>::const_iterator end() const { return m_elements.end(); }
+private:
+    void CalculateOffsetsAndStride();
 };

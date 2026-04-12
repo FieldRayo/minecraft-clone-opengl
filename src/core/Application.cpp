@@ -30,10 +30,8 @@ void Application::Run() {
     VertexArray VAO;
     VertexBuffer VBO;
 
-    BufferLayout layout;
-    layout.size = 3;
-    layout.type = GL_FLOAT;
-    layout.normalized = false;
+    BufferElement element("a_pos", ShaderDataType::Float3);
+    BufferLayout layout({ element });
 
     VAO.AddVertexBuffer(VBO, layout);
 

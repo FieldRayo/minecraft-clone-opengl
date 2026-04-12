@@ -3,9 +3,13 @@
 #include <memory>
 #include <vector>
 
+#include "BufferLayout.h"
+
 class VertexBuffer;
 class IndexBuffer;
 class BufferLayout;
+
+unsigned int ShaderDataTypeToGLType(ShaderDataType type);
 
 class VertexArray{
     unsigned int ID = 0;
