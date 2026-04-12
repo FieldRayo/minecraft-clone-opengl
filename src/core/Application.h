@@ -21,5 +21,5 @@ private:
     void Init();
     void Shutdown();
     void Update(float deltaTime);
-    void Render();
+    void Render_();
 };

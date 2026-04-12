@@ -5,10 +5,6 @@
 
 #include "Chunk.h"
 
-const uint32_t CHUNK_SIZE_X = 16;
-const uint32_t CHUNK_SIZE_Y = 256;
-const uint32_t CHUNK_SIZE_Z = 16;
-
 class ChunkMesh{
     std::vector<float> vertices;
     std::vector<uint32_t> indices;

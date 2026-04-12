@@ -4,6 +4,7 @@
 
 class IndexBuffer {
     unsigned int ID;
+    uint32_t Count;
 public:
     IndexBuffer();
     ~IndexBuffer();
@@ -18,6 +19,8 @@ public:
 
     void Bind() const;
     void UnBind() const;
+
+    uint32_t GetCount() const { return Count; }
 
     void SetData(const uint32_t* indices, uint32_t count);
 };

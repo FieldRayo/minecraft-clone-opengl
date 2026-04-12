@@ -13,6 +13,8 @@ IndexBuffer::~IndexBuffer() {
 IndexBuffer::IndexBuffer(const uint32_t* indices, uint32_t count) {
     glGenBuffers(1, &ID);
     SetData(indices, count);
+
+    Count = count;
 }
 
 IndexBuffer::IndexBuffer(IndexBuffer&& other) noexcept {

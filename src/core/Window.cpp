@@ -82,6 +82,8 @@ bool Window::Init() {
         return false;
     }
 
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     return true;
 }
 
