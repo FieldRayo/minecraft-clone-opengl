@@ -8,7 +8,7 @@ VertexBuffer::VertexBuffer() {
 }
 
 VertexBuffer::~VertexBuffer() {
-   glDeleteBuffers(1, &ID);
+    glDeleteBuffers(1, &ID);
 }
 
 VertexBuffer::VertexBuffer(const void* data, uint32_t size) {
@@ -18,6 +18,8 @@ VertexBuffer::VertexBuffer(const void* data, uint32_t size) {
 
 VertexBuffer::VertexBuffer(VertexBuffer&& other) noexcept {
     ID = other.ID;
+    const void* data = other.GetData();
+    SetData(data, sizeof(data));
     other.ID = 0;
 }
 
@@ -26,6 +28,9 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) noexcept {
         glDeleteBuffers(1, &ID);
 
         ID = other.ID;
+        const void* data = other.GetData();
+        SetData(data, sizeof(data));
+
         other.ID = 0;
     }
     return *this;
@@ -47,5 +52,7 @@ void VertexBuffer::SetData(const void* data, uint32_t size) {
         data,
         GL_STATIC_DRAW
     );
+
+    Data = data;
 }
 

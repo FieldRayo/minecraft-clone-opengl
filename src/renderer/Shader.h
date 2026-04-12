@@ -18,6 +18,8 @@ class Shader {
     std::unordered_map<std::string, int> m_uniformCache;
 public:
     Shader(const std::vector<ShaderSource>& shaders);
+
+    Shader();
     ~Shader();
 
     void use() const;
@@ -31,7 +33,7 @@ public:
     void setMat4(const std::string& name, const glm::mat4& value) const;
 private:
     char* readFile(const std::string& path);
-    unsigned int compileShader(const ShaderSource& ss);
+    unsigned int CompileShader(const ShaderSource& ss);
     int getUniformLocation(const std::string& name);
 };
 

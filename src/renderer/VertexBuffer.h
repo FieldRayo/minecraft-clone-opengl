@@ -4,6 +4,7 @@
 
 class VertexBuffer {
     unsigned int ID;
+    const void* Data;
 public:
     VertexBuffer();
     ~VertexBuffer();
@@ -20,4 +21,6 @@ public:
     void UnBind() const;
 
     void SetData(const void* data, uint32_t size);
+
+    const void* GetData() const { return Data; }
 };

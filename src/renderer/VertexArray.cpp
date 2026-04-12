@@ -41,6 +41,26 @@ VertexArray::~VertexArray() {
     glDeleteVertexArrays(1, &ID);
 }
 
+VertexArray::VertexArray(VertexArray&& other) noexcept {
+    ID = other.ID;
+    m_vertexBuffers = std::move(other.m_vertexBuffers);
+    m_indexBuffer = std::move(other.m_indexBuffer);
+    m_vertexBufferIndex = std::move(other.m_vertexBufferIndex);
+    other.ID = 0;
+}
+    
+VertexArray& VertexArray::operator=(VertexArray&& other) noexcept {
+    if (this != &other) {
+        ID = other.ID;
+        m_vertexBuffers = std::move(other.m_vertexBuffers);
+        m_indexBuffer = std::move(other.m_indexBuffer);
+        m_vertexBufferIndex = std::move(other.m_vertexBufferIndex);
+        other.ID = 0;
+    }
+
+    return *this;
+}
+
 void VertexArray::Bind() const {
     glBindVertexArray(ID);
 }
@@ -49,10 +69,10 @@ void VertexArray::UnBind() const {
     glBindVertexArray(0);
 }
 
-void VertexArray::AddVertexBuffer(std::unique_ptr<VertexBuffer>& vertexBuffer, const BufferLayout& layout) {
+void VertexArray::AddVertexBuffer(std::unique_ptr<VertexBuffer> vertexBuffer, const BufferLayout& layout) {
     Bind();
     vertexBuffer->Bind();
-    
+
     for(auto& element : layout.GetElements()) {
         glEnableVertexAttribArray(m_vertexBufferIndex);
 
@@ -73,9 +93,11 @@ void VertexArray::AddVertexBuffer(std::unique_ptr<VertexBuffer>& vertexBuffer, c
         
         m_vertexBufferIndex++;
     }
+
+    m_vertexBuffers.push_back(std::move(vertexBuffer));
 }
 
-void VertexArray::SetIndexBuffer(std::unique_ptr<IndexBuffer>& indexBuffer) {
+void VertexArray::SetIndexBuffer(std::unique_ptr<IndexBuffer> indexBuffer) {
     Bind();
     indexBuffer->Bind();
     m_indexBuffer = std::move(indexBuffer);

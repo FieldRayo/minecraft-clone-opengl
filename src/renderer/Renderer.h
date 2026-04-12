@@ -14,7 +14,8 @@ class Renderer {
 public:
     Renderer();
     ~Renderer();
-
-    void Draw(const std::unique_ptr<VertexArray>& vao, const Shader& shader, const Camera& camera);
+    
+    void SetShader(std::unique_ptr<Shader> shader) { m_shader = std::move(shader); }
+    void Draw(const VertexArray& vao, const Camera& camera);
 private:
 };

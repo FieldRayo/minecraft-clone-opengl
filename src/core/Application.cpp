@@ -5,6 +5,10 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "Window.h"
 #include "Input.h"
 #include "Camera.h"
@@ -17,6 +21,8 @@
 #include "voxel/ChunkMesh.h"
 #include "voxel/Chunk.h"
 
+double mousePosX, mousePosY;
+
 Application::Application() {
     Init();
 }
@@ -24,12 +30,6 @@ Application::Application() {
 Application::~Application() = default;
 
 void Application::Run() {
-
-    Shader shaders({
-        { GL_VERTEX_SHADER, "shaders/vertex.glsl" },
-        { GL_FRAGMENT_SHADER, "shaders/fragment.glsl" }
-    });
-
     Chunk chunk;
     
     // Fill Chunk
@@ -50,38 +50,14 @@ void Application::Run() {
     const auto& vertices = chunkMesh.GetVertices();
     const auto& indices = chunkMesh.GetIndices();
     auto VBO = std::make_unique<VertexBuffer>(vertices.data(), vertices.size() * sizeof(float));
-    auto VAO = std::make_unique<VertexArray>();
     auto IBO = std::make_unique<IndexBuffer>(indices.data(), indices.size());
-    
-    /*
-    float vertices[] = {
-        // position          // color
-        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-         0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2
-    };
-
-    auto VBO = std::make_unique<VertexBuffer>(vertices, sizeof(vertices));
     auto VAO = std::make_unique<VertexArray>();
-    auto IBO = std::make_unique<IndexBuffer>(indices, 3);
-*/
+  
     BufferLayout layout;
     layout.Push<glm::vec3>("aPos");
 
-    VAO->AddVertexBuffer(VBO, layout);
-    VAO->SetIndexBuffer(IBO);
-
-    Camera camera;
-    Input::Init(m_window->GetHandle());
-    Renderer render;
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glCullFace(GL_BACK);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    VAO->AddVertexBuffer(std::move(VBO), layout);
+    VAO->SetIndexBuffer(std::move(IBO));
 
     float lastTime = 0;
     while (m_running && m_window->isOpen()) {
@@ -91,33 +67,26 @@ void Application::Run() {
         float currentTime = glfwGetTime();
         float dt = currentTime - lastTime;
         lastTime = currentTime;
+
+        Update(dt);
         
-        double xPos, yPos;
-        xPos = Input::GetMouseX();
-        yPos = Input::GetMouseY();
+        m_renderer->Draw(*VAO, *m_camera);
 
-        static float lastX = 400, lastY = 300;
-        static bool firstMouse = true;
+        // ImGui 👇
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::SetNextWindowSize(ImVec2(0, 0));
+        ImGui::Begin("Debug");
+        ImGui::Text("FPS: %.1f", 1.0f / dt);
+        ImGui::Text("Camera: %.1f %.1f %.1f", 
+            m_camera->GetPosition().x,
+            m_camera->GetPosition().y,
+            m_camera->GetPosition().z);
+        ImGui::End();
 
-        float xoffset = xPos - lastX;
-        float yoffset = lastY - yPos;
-
-        lastX = xPos;
-        lastY = yPos;
-
-        camera.MouseMovement(xoffset, yoffset);
-        camera.Update(dt);
-
-        if (Input::IsKeyPressed(GLFW_KEY_ESCAPE)) {
-            Shutdown();
-        }
-        if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-            camera.SetSpeed(20.0f);
-        }else {
-            camera.SetSpeed(10.0f);
-        }
-        
-        render.Draw(VAO, shaders, camera);
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         m_window->SwapBuffers();
         m_window->PollEvents();
@@ -128,16 +97,73 @@ void Application::Run() {
 
 void Application::Init() {
     m_running = true;
+
     m_window = std::make_unique<Window>();
+    m_renderer = std::make_unique<Renderer>();
+    m_camera = std::make_unique<Camera>();
+
     m_window->Init();
+    Input::Init(m_window->GetHandle());
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glCullFace(GL_BACK);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    auto shader = std::make_unique<Shader>(std::vector<ShaderSource>{
+        { GL_VERTEX_SHADER,   "shaders/vertex.glsl" },
+        { GL_FRAGMENT_SHADER, "shaders/fragment.glsl" }
+    });
+
+    m_renderer->SetShader(std::move(shader));
+
+    // ImGui 👇
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(m_window->GetHandle(), true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui::StyleColorsDark();
 }
 
 void Application::Shutdown() {
+    if (!m_running) return;
+
+    // ImGui 👇
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     m_running = false;
     m_window->RequestClose();
 }
 
-void Application::Update(float deltaTime) {}
+void Application::Update(float deltaTime) {
 
-void Application::Render_() {}
+    if (Input::IsKeyPressed(GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        m_running = false;
+    if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        m_camera->SetSpeed(20.0f);
+    else
+        m_camera->SetSpeed(10.0f);
+
+    mousePosX = Input::GetMouseX();
+    mousePosY = Input::GetMouseY();
+
+    static float lastX = 400, lastY = 300;
+    static bool firstMouse = true;
+
+    float xoffset = mousePosX - lastX;
+    float yoffset = lastY - mousePosY;
+
+    lastX = mousePosX;
+    lastY = mousePosY;
+
+    m_camera->MouseMovement(xoffset, yoffset);
+    m_camera->Update(deltaTime);
+}
+
+void Application::Render() {
+
+    
+}
 

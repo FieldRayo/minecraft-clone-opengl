@@ -2,13 +2,17 @@
 
 #include <vector>
 #include <cstdint>
+#include <iostream>
 
 #include "Chunk.h"
+#include "renderer/VertexArray.h"
 
 class ChunkMesh{
     std::vector<float> vertices;
     std::vector<uint32_t> indices;
     uint32_t offset = 0;
+
+    std::unique_ptr<VertexArray> vao;
 public:
     ChunkMesh() = default;
     ~ChunkMesh() = default;

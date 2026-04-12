@@ -27,6 +27,8 @@ public:
     glm::mat4 GetViewMatrix() const;
     glm::mat4 GetProjectionMatrix() const;
 
+    glm::vec3 GetPosition() { return Position; }
+
     void MouseMovement(float xoffset, float yoffset);
     void SetSpeed(float speed) { Speed = speed; }
 private:

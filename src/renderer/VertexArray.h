@@ -31,8 +31,8 @@ public:
     void Bind() const;
     void UnBind() const;
 
-    void AddVertexBuffer(std::unique_ptr<VertexBuffer>& vertexBuffer, const BufferLayout& layout);
-    void SetIndexBuffer(std::unique_ptr<IndexBuffer>& indexBuffer);
+    void AddVertexBuffer(std::unique_ptr<VertexBuffer> vertexBuffer, const BufferLayout& layout);
+    void SetIndexBuffer(std::unique_ptr<IndexBuffer> indexBuffer);
 
     const std::vector<std::unique_ptr<VertexBuffer>>& GetVertexBuffers() const { return m_vertexBuffers; }
     const std::unique_ptr<IndexBuffer>& GetIndexBuffer() const { return m_indexBuffer; }

@@ -8,7 +8,7 @@
 Shader::Shader(const std::vector<ShaderSource>& shaders) {
     std::vector<unsigned int> compileShaders;
     for(auto& s : shaders)
-        compileShaders.push_back(compileShader(s));       
+        compileShaders.push_back(CompileShader(s));       
 
     ID = glCreateProgram();
     for(auto& cs : compileShaders)
@@ -26,6 +26,10 @@ Shader::Shader(const std::vector<ShaderSource>& shaders) {
     
     for(auto& cs : compileShaders)
         glDeleteShader(cs);
+}
+
+Shader::Shader() {
+    ID = glCreateProgram();
 }
 
 Shader::~Shader() {
@@ -86,7 +90,7 @@ char* Shader::readFile(const std::string& path) {
     return buffer;
 }
 
-unsigned int Shader::compileShader(const ShaderSource& ss) {
+unsigned int Shader::CompileShader(const ShaderSource& ss) {
     unsigned int shader = glCreateShader(ss.type);
     const char* src = readFile(ss.path);
 
