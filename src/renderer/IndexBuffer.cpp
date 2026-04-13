@@ -12,7 +12,8 @@ IndexBuffer::~IndexBuffer() {
 
 IndexBuffer::IndexBuffer(const uint32_t* indices, uint32_t count) {
     glGenBuffers(1, &ID);
-    SetData(indices, count);
+    Bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count*sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
     Count = count;
 }
@@ -42,11 +43,7 @@ void IndexBuffer::UnBind() const {
 
 void IndexBuffer::SetData(const uint32_t* indices, uint32_t count) {
     Bind();
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        count*sizeof(uint32_t),
-        indices,
-        GL_STATIC_DRAW
-    );
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count*sizeof(uint32_t), indices);
+    Count = count;
 }
 

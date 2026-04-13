@@ -12,13 +12,13 @@ class BufferLayout;
 unsigned int ShaderDataTypeToGLType(ShaderDataType type);
 
 class VertexArray{
-    unsigned int ID = 0;
 
     std::vector<std::unique_ptr<VertexBuffer>> m_vertexBuffers;
     std::unique_ptr<IndexBuffer> m_indexBuffer;
 
     unsigned int m_vertexBufferIndex = 0;
 public:
+    unsigned int ID = 0;
     VertexArray();
     ~VertexArray();
 

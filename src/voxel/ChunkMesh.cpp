@@ -1,11 +1,65 @@
 #include "ChunkMesh.h"
 
-#include <iostream>
+#include "renderer/VertexArray.h"
+#include "renderer/VertexBuffer.h"
+#include "renderer/IndexBuffer.h"
+#include "renderer/Renderer.h"
+#include "core/Camera.h"
 
-void ChunkMesh::Build(const Chunk& chunk) {
-    vertices.clear();
-    indices.clear();
+ChunkMesh::ChunkMesh() {
+    m_vao = std::make_unique<VertexArray>();
+}
+
+ChunkMesh::~ChunkMesh() = default;
+
+void ChunkMesh::Draw(Renderer& renderer, Camera& camera) {
+    renderer.Draw(*m_vao, camera);
+}
+
+void ChunkMesh::Build(const ChunkContext& chunkContext) {
+    m_vertices.clear();
+    m_indices.clear();
     offset = 0;
+
+    GenerateGeometry(chunkContext);
+    
+    auto vbo = std::make_unique<VertexBuffer>(m_vertices.data(), m_vertices.size() * sizeof(float));
+    auto ibo = std::make_unique<IndexBuffer>(m_indices.data(), m_indices.size());
+
+    m_ref_vbo = vbo.get();
+    m_ref_ibo = ibo.get();
+
+    BufferLayout layout;
+    layout.Push<glm::vec3>("aPos");
+
+    m_vao = std::make_unique<VertexArray>();
+    m_vao->AddVertexBuffer(std::move(vbo), layout);
+    m_vao->SetIndexBuffer(std::move(ibo));
+}
+
+void ChunkMesh::Update(const ChunkContext& chunkContext) {
+    m_vertices.clear();
+    m_indices.clear();
+    offset = 0;
+    
+    GenerateGeometry(chunkContext);
+
+    // Update
+    m_ref_vbo->SetData(m_vertices.data(), m_vertices.size() * sizeof(float));
+    m_ref_ibo->SetData(m_indices.data(), m_indices.size() * sizeof(unsigned int));
+}
+
+void ChunkMesh::GenerateGeometry(const ChunkContext& chunkContext) {
+    Chunk chunk = chunkContext.Center;
+    
+    if (chunk.GetBlock(0, 0, 0).GetType() == BlockType::Grass)
+        std::cout << "Grass!" << std::endl;
+    else
+        std::cout << "NoGrass" << std::endl;
+
+    int cordX = chunk.GetPosition().x;
+    int cordY = chunk.GetPosition().y;
+    int cordZ = chunk.GetPosition().z;
 
     for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
     for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
@@ -15,128 +69,141 @@ void ChunkMesh::Build(const Chunk& chunk) {
         if (!block.IsSolid())
             continue;
         
-        // Add right face
-        if (x + 1 >= CHUNK_SIZE_X || !chunk.GetBlock(x + 1, y, z).IsSolid())
-            AddFaceRight(x, y, z);
-
-        // Add left face
-        if (x == 0 || !chunk.GetBlock(x - 1, y, z).IsSolid())
-            AddFaceLeft(x, y, z);
-
-        // Add up face
-        if (y + 1 >= CHUNK_SIZE_Y || !chunk.GetBlock(x, y + 1, z).IsSolid())
-            AddFaceTop(x, y, z);
-
-        // Add down face
-        if (y == 0 || !chunk.GetBlock(x, y - 1, z).IsSolid())
-            AddFaceBottom(x, y, z);
-
-        // Add front face
-        if (z + 1 >= CHUNK_SIZE_Z || !chunk.GetBlock(x, y, z + 1).IsSolid())
-            AddFaceFront(x, y, z);
-
-        // Add back face
-        if (z == 0 || !chunk.GetBlock(x, y, z - 1).IsSolid())
-            AddFaceBack(x, y, z);
+        for(auto& dir : { 
+                    Direction::Right, Direction::Left,
+                    Direction::Top, Direction::Bottom,
+                    Direction::Front, Direction::Back
+                }) {
+            if (ShouldRenderFace(chunkContext, x, y, z, dir))
+                AddFace(x+cordX, y+cordY, z+cordZ, dir);
+        }
 
     }
 }
 
-void ChunkMesh::AddFaceRight(float x, float y, float z)
-{
-    vertices.insert(vertices.end(), {
-        x+1, y,   z,
-        x+1, y,   z+1,
-        x+1, y+1, z+1,
-        x+1, y+1, z
-    });
+bool ChunkMesh::ShouldRenderFace(const ChunkContext& ctx, int32_t x, int32_t y, int32_t z, Direction direction) {
+    const Chunk chunk = ctx.Center;
+    const Chunk* adj = nullptr;
 
-    indices.insert(indices.end(), {
-        offset, offset+1, offset+2,
-        offset+2, offset+3, offset
-    });
+    auto isAir = [&](int nx, int ny, int nz, const Chunk* adjacent) {
+        if (adjacent != nullptr) {
+            return !adjacent->GetBlock(nx, ny, nz).IsSolid();
+        }
+        return true;
+    };
 
-    offset += 4;
+    switch (direction) {
+        case Direction::Right : { 
+            if (x + 1 >= CHUNK_SIZE_X) {
+                return isAir(0, y, z, ctx.Right);
+            }
+            return !chunk.GetBlock(x + 1, y, z).IsSolid();
+        }
+        case Direction::Left : { 
+            if (x + 1 >= CHUNK_SIZE_X) {
+                return isAir(CHUNK_SIZE_X-1, y, z, ctx.Left);
+            }
+            return !chunk.GetBlock(x - 1, y, z).IsSolid();
+        }
+        case Direction::Top : { 
+            if (x + 1 >= CHUNK_SIZE_X) {
+                return isAir(x, 0, z, ctx.Top);
+            }
+            return !chunk.GetBlock(x, y + 1, z).IsSolid();
+        }
+        case Direction::Bottom : { 
+            if (x + 1 >= CHUNK_SIZE_X) {
+                return isAir(0, CHUNK_SIZE_Y-1, z, ctx.Bottom);
+            }
+            return !chunk.GetBlock(x, y - 1, z).IsSolid();
+        }
+        case Direction::Front : { 
+            if (x + 1 >= CHUNK_SIZE_X) {
+                return isAir(x, y, 0, ctx.Front);
+            }
+            return !chunk.GetBlock(x, y, z + 1).IsSolid();
+        }
+        case Direction::Back : { 
+            if (x + 1 >= CHUNK_SIZE_X) {
+                return isAir(x, y, CHUNK_SIZE_Z-1, ctx.Back);
+            }
+            return !chunk.GetBlock(x, y, z - 1).IsSolid();
+        }
+    }
+
+    return false;
 }
 
-void ChunkMesh::AddFaceLeft(float x, float y, float z)
-{
-    vertices.insert(vertices.end(), {
-        x, y,   z,
-        x, y+1, z,
-        x, y+1, z+1,
-        x, y,   z+1
-    });
+void ChunkMesh::AddFace(float x, float y, float z, Direction direction) {
+    switch (direction) {
+        case Direction::Right : {
+            m_vertices.insert(m_vertices.end(), {
+                x+1, y,   z,
+                x+1, y,   z+1,
+                x+1, y+1, z+1,
+                x+1, y+1, z
+            });
 
-    indices.insert(indices.end(), {
-        offset, offset+1, offset+2,
-        offset+2, offset+3, offset
-    });
+            break;
+        }
 
-    offset += 4;
-}
+        case Direction::Left : {
+            m_vertices.insert(m_vertices.end(), {
+                x, y,   z,
+                x, y+1, z,
+                x, y+1, z+1,
+                x, y,   z+1
+            });
 
-void ChunkMesh::AddFaceTop(float x, float y, float z)
-{
-    vertices.insert(vertices.end(), {
-        x,   y+1, z,
-        x+1, y+1, z,
-        x+1, y+1, z+1,
-        x,   y+1, z+1
-    });
+            break;
+        }
 
-    indices.insert(indices.end(), {
-        offset, offset+1, offset+2,
-        offset+2, offset+3, offset
-    });
+        case Direction::Top : {
+            m_vertices.insert(m_vertices.end(), {
+                x,   y+1, z,
+                x+1, y+1, z,
+                x+1, y+1, z+1,
+                x,   y+1, z+1
+            });
 
-    offset += 4;
-}
+            break;
+        }
 
-void ChunkMesh::AddFaceBottom(float x, float y, float z)
-{
-    vertices.insert(vertices.end(), {
-        x,   y, z,
-        x+1, y, z,
-        x+1, y, z+1,
-        x,   y, z+1
-    });
+        case Direction::Bottom : {
+            m_vertices.insert(m_vertices.end(), {
+                x,   y, z,
+                x+1, y, z,
+                x+1, y, z+1,
+                x,   y, z+1
+            });
 
-    indices.insert(indices.end(), {
-        offset, offset+1, offset+2,
-        offset+2, offset+3, offset
-    });
+            break;
+        }
 
-    offset += 4;
-}
+        case Direction::Front : {
+            m_vertices.insert(m_vertices.end(), {
+                x,   y,   z+1,
+                x+1, y,   z+1,
+                x+1, y+1, z+1,
+                x,   y+1, z+1
+            });
 
-void ChunkMesh::AddFaceFront(float x, float y, float z)
-{
-    vertices.insert(vertices.end(), {
-        x,   y,   z+1,
-        x+1, y,   z+1,
-        x+1, y+1, z+1,
-        x,   y+1, z+1
-    });
+            break;
+        }
 
-    indices.insert(indices.end(), {
-        offset, offset+1, offset+2,
-        offset+2, offset+3, offset
-    });
+        case Direction::Back : {
+            m_vertices.insert(m_vertices.end(), {
+                x,   y,   z,
+                x,   y+1, z,
+                x+1, y+1, z,
+                x+1, y,   z
+            });
 
-    offset += 4;
-}
+            break;
+        }
+    }
 
-void ChunkMesh::AddFaceBack(float x, float y, float z)
-{
-    vertices.insert(vertices.end(), {
-        x,   y,   z,
-        x,   y+1, z,
-        x+1, y+1, z,
-        x+1, y,   z
-    });
-
-    indices.insert(indices.end(), {
+    m_indices.insert(m_indices.end(), {
         offset, offset+1, offset+2,
         offset+2, offset+3, offset
     });

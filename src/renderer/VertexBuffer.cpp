@@ -3,17 +3,23 @@
 #include <glad/glad.h>
 #include <iostream>
 
-VertexBuffer::VertexBuffer() {
+VertexBuffer::VertexBuffer(uint32_t size) {
     glGenBuffers(1, &ID);
-}
 
-VertexBuffer::~VertexBuffer() {
-    glDeleteBuffers(1, &ID);
+    Bind();
+    glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 }
 
 VertexBuffer::VertexBuffer(const void* data, uint32_t size) {
     glGenBuffers(1, &ID);
-    SetData(data, size);
+
+    Bind();
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+}
+
+VertexBuffer::~VertexBuffer() {
+    std::cout << "Deleting VBO: " << ID << std::endl;
+    glDeleteBuffers(1, &ID);
 }
 
 VertexBuffer::VertexBuffer(VertexBuffer&& other) noexcept {
@@ -46,13 +52,6 @@ void VertexBuffer::UnBind() const {
 
 void VertexBuffer::SetData(const void* data, uint32_t size) {
     Bind();
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        size,
-        data,
-        GL_STATIC_DRAW
-    );
-
-    Data = data;
+    glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 

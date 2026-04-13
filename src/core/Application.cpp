@@ -14,10 +14,6 @@
 #include "Camera.h"
 #include "renderer/Renderer.h"
 #include "renderer/Shader.h"
-#include "renderer/VertexArray.h"
-#include "renderer/VertexBuffer.h"
-#include "renderer/BufferLayout.h"
-#include "renderer/IndexBuffer.h"
 #include "voxel/ChunkMesh.h"
 #include "voxel/Chunk.h"
 
@@ -29,9 +25,14 @@ Application::Application() {
 
 Application::~Application() = default;
 
+std::unique_ptr<ChunkMesh> chunkMesh;
+std::unique_ptr<ChunkMesh> chunkMesh2;
+
 void Application::Run() {
-    Chunk chunk;
     
+    Chunk chunk;
+    Chunk chunk2({ 16.0f, 0.0f, 0.0f });
+
     // Fill Chunk
     for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
     for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
@@ -41,37 +42,34 @@ void Application::Run() {
         else
             chunk.SetBlock(Block(1, BlockType::Air), x, y, z);
     }
+    // Fill Chunk 2
+    for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
+    for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
+    for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
+        if (1)
+            chunk2.SetBlock(Block(1, BlockType::Grass), x, y, z);
+        else
+            chunk2.SetBlock(Block(1, BlockType::Air), x, y, z);
+    }
 
-    chunk.SetBlock(Block(1, BlockType::Air), 15, 15, 15);
+    ChunkContext chunkContext(chunk);
+    ChunkContext chunkContext2(chunk2);
 
-    ChunkMesh chunkMesh;
-    chunkMesh.Build(chunk);
+    chunkMesh = std::make_unique<ChunkMesh>();
+    chunkMesh->Build(chunkContext);
 
-    const auto& vertices = chunkMesh.GetVertices();
-    const auto& indices = chunkMesh.GetIndices();
-    auto VBO = std::make_unique<VertexBuffer>(vertices.data(), vertices.size() * sizeof(float));
-    auto IBO = std::make_unique<IndexBuffer>(indices.data(), indices.size());
-    auto VAO = std::make_unique<VertexArray>();
-  
-    BufferLayout layout;
-    layout.Push<glm::vec3>("aPos");
-
-    VAO->AddVertexBuffer(std::move(VBO), layout);
-    VAO->SetIndexBuffer(std::move(IBO));
+    chunkMesh2 = std::make_unique<ChunkMesh>();
+    chunkMesh2->Build(chunkContext2);
 
     float lastTime = 0;
     while (m_running && m_window->isOpen()) {
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         float currentTime = glfwGetTime();
         float dt = currentTime - lastTime;
         lastTime = currentTime;
 
+        Render();
         Update(dt);
         
-        m_renderer->Draw(*VAO, *m_camera);
-
         // ImGui 👇
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -91,7 +89,7 @@ void Application::Run() {
         m_window->SwapBuffers();
         m_window->PollEvents();
     }
-    
+
     Shutdown();
 }
 
@@ -136,16 +134,14 @@ void Application::Shutdown() {
     m_running = false;
     m_window->RequestClose();
 }
-
 void Application::Update(float deltaTime) {
-
-    if (Input::IsKeyPressed(GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (Input::IsKeyPressed(GLFW_KEY_ESCAPE))
         m_running = false;
-    if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
         m_camera->SetSpeed(20.0f);
     else
         m_camera->SetSpeed(10.0f);
-
+        
     mousePosX = Input::GetMouseX();
     mousePosY = Input::GetMouseY();
 
@@ -163,7 +159,23 @@ void Application::Update(float deltaTime) {
 }
 
 void Application::Render() {
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    auto shader = std::make_unique<Shader>(std::vector<ShaderSource>{
+        { GL_VERTEX_SHADER,   "shaders/vertex.glsl" },
+        { GL_FRAGMENT_SHADER, "shaders/fragment.glsl" }
+    });
     
+
+    shader->use();
+    m_renderer->SetShader(std::move(shader)); // ← antes de dibujar
+
+    m_renderer->GetShader()->setVec3("uCol", { 1.0f, 0.0f, 0.0f });
+    chunkMesh->Draw(*m_renderer, *m_camera);
+
+    m_renderer->GetShader()->setVec3("uCol", { 0.0f, 1.0f, 0.0f });
+    chunkMesh2->Draw(*m_renderer, *m_camera);
+
 }
 
