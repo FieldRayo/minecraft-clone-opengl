@@ -23,6 +23,7 @@ public:
     ~Shader();
 
     void use() const;
+    const unsigned int GetId() const;
 
     // Uniforms
     void setBool(const std::string& name, bool value) const;

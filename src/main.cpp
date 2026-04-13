@@ -1,11 +1,7 @@
 #include <iostream>
+#include <string>
 
-#include <glad/glad.h>
-
-#include "core/Settings.h"
 #include "core/Application.h"
-
-auto& settings = Settings::Get();
 
 int main() {
     Application app;

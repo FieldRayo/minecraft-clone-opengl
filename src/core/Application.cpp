@@ -16,6 +16,7 @@
 #include "renderer/Shader.h"
 #include "voxel/ChunkMesh.h"
 #include "voxel/Chunk.h"
+#include "renderer/Texture.h"
 
 double mousePosX, mousePosY;
 
@@ -29,7 +30,6 @@ std::unique_ptr<ChunkMesh> chunkMesh;
 std::unique_ptr<ChunkMesh> chunkMesh2;
 
 void Application::Run() {
-    
     Chunk chunk;
     Chunk chunk2({ 16.0f, 0.0f, 0.0f });
 
@@ -162,20 +162,11 @@ void Application::Render() {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto shader = std::make_unique<Shader>(std::vector<ShaderSource>{
-        { GL_VERTEX_SHADER,   "shaders/vertex.glsl" },
-        { GL_FRAGMENT_SHADER, "shaders/fragment.glsl" }
-    });
-    
-
-    shader->use();
-    m_renderer->SetShader(std::move(shader)); // ← antes de dibujar
-
+    m_renderer->GetShader()->use();
     m_renderer->GetShader()->setVec3("uCol", { 1.0f, 0.0f, 0.0f });
     chunkMesh->Draw(*m_renderer, *m_camera);
 
     m_renderer->GetShader()->setVec3("uCol", { 0.0f, 1.0f, 0.0f });
     chunkMesh2->Draw(*m_renderer, *m_camera);
-
 }
 

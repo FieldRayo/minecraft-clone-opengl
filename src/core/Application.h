@@ -9,11 +9,10 @@ class Camera;
 
 class Application {
     bool m_running = false;
+public:
     std::unique_ptr<Window> m_window;
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Camera> m_camera;
-    
-public:
     Application();
     ~Application();
     

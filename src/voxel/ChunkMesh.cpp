@@ -10,7 +10,11 @@ ChunkMesh::ChunkMesh() {
     m_vao = std::make_unique<VertexArray>();
 }
 
-ChunkMesh::~ChunkMesh() = default;
+ChunkMesh::~ChunkMesh() {
+    m_vao->UnBind();
+    m_ref_vbo = nullptr;
+    m_ref_ibo = nullptr;
+}
 
 void ChunkMesh::Draw(Renderer& renderer, Camera& camera) {
     renderer.Draw(*m_vao, camera);
@@ -57,9 +61,9 @@ void ChunkMesh::GenerateGeometry(const ChunkContext& chunkContext) {
     else
         std::cout << "NoGrass" << std::endl;
 
-    int cordX = chunk.GetPosition().x;
-    int cordY = chunk.GetPosition().y;
-    int cordZ = chunk.GetPosition().z;
+    float cordX = chunk.GetPosition().x;
+    float cordY = chunk.GetPosition().y;
+    float cordZ = chunk.GetPosition().z;
 
     for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
     for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
@@ -82,7 +86,7 @@ void ChunkMesh::GenerateGeometry(const ChunkContext& chunkContext) {
 }
 
 bool ChunkMesh::ShouldRenderFace(const ChunkContext& ctx, int32_t x, int32_t y, int32_t z, Direction direction) {
-    const Chunk chunk = ctx.Center;
+    const Chunk& chunk = ctx.Center;
     const Chunk* adj = nullptr;
 
     auto isAir = [&](int nx, int ny, int nz, const Chunk* adjacent) {
@@ -100,31 +104,31 @@ bool ChunkMesh::ShouldRenderFace(const ChunkContext& ctx, int32_t x, int32_t y, 
             return !chunk.GetBlock(x + 1, y, z).IsSolid();
         }
         case Direction::Left : { 
-            if (x + 1 >= CHUNK_SIZE_X) {
+            if (x == 0) {
                 return isAir(CHUNK_SIZE_X-1, y, z, ctx.Left);
             }
             return !chunk.GetBlock(x - 1, y, z).IsSolid();
         }
         case Direction::Top : { 
-            if (x + 1 >= CHUNK_SIZE_X) {
+            if (y + 1 >= CHUNK_SIZE_Y) {
                 return isAir(x, 0, z, ctx.Top);
             }
             return !chunk.GetBlock(x, y + 1, z).IsSolid();
         }
         case Direction::Bottom : { 
-            if (x + 1 >= CHUNK_SIZE_X) {
-                return isAir(0, CHUNK_SIZE_Y-1, z, ctx.Bottom);
+            if (y == 0) {
+                return isAir(x, CHUNK_SIZE_Y-1, z, ctx.Bottom);
             }
             return !chunk.GetBlock(x, y - 1, z).IsSolid();
         }
         case Direction::Front : { 
-            if (x + 1 >= CHUNK_SIZE_X) {
+            if (z + 1 >= CHUNK_SIZE_Z) {
                 return isAir(x, y, 0, ctx.Front);
             }
             return !chunk.GetBlock(x, y, z + 1).IsSolid();
         }
         case Direction::Back : { 
-            if (x + 1 >= CHUNK_SIZE_X) {
+            if (z == 0) {
                 return isAir(x, y, CHUNK_SIZE_Z-1, ctx.Back);
             }
             return !chunk.GetBlock(x, y, z - 1).IsSolid();

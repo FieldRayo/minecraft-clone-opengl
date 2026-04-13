@@ -40,6 +40,10 @@ void Shader::use() const {
     glUseProgram(ID);
 }
 
+const unsigned int Shader::GetId() const {
+    return ID;
+}
+
 void Shader::setBool(const std::string& name, bool value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
