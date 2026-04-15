@@ -28,19 +28,20 @@ Application::~Application() = default;
 
 std::unique_ptr<ChunkMesh> chunkMesh;
 std::unique_ptr<ChunkMesh> chunkMesh2;
+Chunk chunk;
+Chunk chunk2({ 16.0f, 0.0f, 0.0f });
 
 void Application::Run() {
-    Chunk chunk;
-    Chunk chunk2({ 16.0f, 0.0f, 0.0f });
-
     // Fill Chunk
     for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
     for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
     for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
-        if (1)
-            chunk.SetBlock(Block(1, BlockType::Grass), x, y, z);
+        if (y == CHUNK_SIZE_Y - 1)
+            chunk.SetBlock(Block(1, BlockType::Grass), x, y, z);  // capa top
+        else if (y >= CHUNK_SIZE_Y - 4)
+            chunk.SetBlock(Block(1, BlockType::Dirt), x, y, z);   // capas de dirt
         else
-            chunk.SetBlock(Block(1, BlockType::Air), x, y, z);
+            chunk.SetBlock(Block(1, BlockType::Stone), x, y, z);  // resto stone
     }
     // Fill Chunk 2
     for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
@@ -54,12 +55,14 @@ void Application::Run() {
 
     ChunkContext chunkContext(chunk);
     ChunkContext chunkContext2(chunk2);
+    chunkContext.Right = &chunk2;
+    chunkContext2.Left = &chunk;
 
-    chunkMesh = std::make_unique<ChunkMesh>();
-    chunkMesh->Build(chunkContext);
+    chunkMesh = std::make_unique<ChunkMesh>(chunkContext);
+    chunkMesh->Build();
 
-    chunkMesh2 = std::make_unique<ChunkMesh>();
-    chunkMesh2->Build(chunkContext2);
+    chunkMesh2 = std::make_unique<ChunkMesh>(chunkContext2);
+    chunkMesh2->Build();
 
     float lastTime = 0;
     while (m_running && m_window->isOpen()) {
@@ -69,7 +72,7 @@ void Application::Run() {
 
         Render();
         Update(dt);
-        
+
         // ImGui 👇
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -134,6 +137,8 @@ void Application::Shutdown() {
     m_running = false;
     m_window->RequestClose();
 }
+
+int p=0;
 void Application::Update(float deltaTime) {
     if (Input::IsKeyPressed(GLFW_KEY_ESCAPE))
         m_running = false;
@@ -141,6 +146,13 @@ void Application::Update(float deltaTime) {
         m_camera->SetSpeed(20.0f);
     else
         m_camera->SetSpeed(10.0f);
+    if (Input::IsKeyPressed(GLFW_KEY_U)) {
+        chunk.SetBlock(Block(1, BlockType::Air), 0, p, 0);
+
+        chunkMesh->Update();
+        chunkMesh2->Update();
+        p++;
+    }
         
     mousePosX = Input::GetMouseX();
     mousePosY = Input::GetMouseY();
@@ -164,9 +176,13 @@ void Application::Render() {
 
     m_renderer->GetShader()->use();
     m_renderer->GetShader()->setVec3("uCol", { 1.0f, 0.0f, 0.0f });
-    chunkMesh->Draw(*m_renderer, *m_camera);
+    Mesh mesh;
+    mesh.Upload(chunkMesh->GetVertices(), chunkMesh->GetIndices());
+    m_renderer->Draw(mesh, *m_camera);
 
     m_renderer->GetShader()->setVec3("uCol", { 0.0f, 1.0f, 0.0f });
-    chunkMesh2->Draw(*m_renderer, *m_camera);
+    Mesh mesh2;
+    mesh2.Upload(chunkMesh2->GetVertices(), chunkMesh2->GetIndices());
+    m_renderer->Draw(mesh2, *m_camera);
 }
 

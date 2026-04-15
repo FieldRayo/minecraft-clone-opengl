@@ -26,7 +26,7 @@ public:
     const glm::vec3& GetPosition() const;
 };
 
-struct ChunkContext{
+struct ChunkContext {
     const Chunk& Center;
     const Chunk* Right = nullptr;
     const Chunk* Left = nullptr;

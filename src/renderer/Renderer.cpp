@@ -12,9 +12,9 @@ Renderer::Renderer() = default;
 
 Renderer::~Renderer() = default;
 
-void Renderer::Draw(const VertexArray& vao, const Camera& camera) {
+void Renderer::Draw(const Mesh& mesh, const Camera& camera) {
     m_shader->use();
-    vao.Bind();
+    mesh.Bind();
 
     const glm::mat4 view = camera.GetViewMatrix();
     const glm::mat4 projection = camera.GetProjectionMatrix();
@@ -24,7 +24,7 @@ void Renderer::Draw(const VertexArray& vao, const Camera& camera) {
 
     glDrawElements(
         GL_TRIANGLES,
-        vao.GetIndexBuffer()->GetCount(),
+        mesh.GetIndicesCount(),
         GL_UNSIGNED_INT,
         nullptr
     );

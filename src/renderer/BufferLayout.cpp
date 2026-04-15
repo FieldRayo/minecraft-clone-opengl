@@ -67,14 +67,12 @@ BufferLayout::BufferLayout(std::initializer_list<BufferElement> elements) :
 void BufferLayout::CalculateOffsetsAndStride() {
     size_t offset = 0;
     m_stride = 0;
-
     for (auto& element : m_elements) {
         element.Offset = offset;
-        
         uint32_t size = ShaderDataTypeSize(element.Type);
+        element.Size = size;
         offset += size;
+        m_stride += size;
     }
-
-    m_stride = offset;
 }
 

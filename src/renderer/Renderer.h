@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "Shader.h"
-#include "VertexArray.h"
+#include "Mesh.h"
 #include "core/Camera.h"
 
 // Forward declarations
@@ -17,6 +17,6 @@ public:
     
     void SetShader(std::unique_ptr<Shader> shader) { m_shader = std::move(shader); }
     const std::unique_ptr<Shader>& GetShader() const { return m_shader; }
-    void Draw(const VertexArray& vao, const Camera& camera);
+    void Draw(const Mesh& mesh, const Camera& camera);
 private:
 };

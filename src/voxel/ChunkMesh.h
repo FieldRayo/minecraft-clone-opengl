@@ -2,42 +2,43 @@
 
 #include <vector>
 #include <cstdint>
-#include <iostream>
+#include <memory>
 
 #include "Chunk.h"
+#include "renderer/Mesh.h"
 
 class VertexArray;
 class VertexBuffer;
 class IndexBuffer;
+class Texture;
 
 class Renderer;
 class Camera;
 
 enum class Direction { Right, Left, Top, Bottom, Front, Back };
 
-class ChunkMesh{
-    std::vector<float> m_vertices;
-    std::vector<uint32_t> m_indices;
-    uint32_t offset = 0;
+class ChunkMesh {
+    std::unique_ptr<ChunkContext> m_chunkContext;
 
-    std::unique_ptr<VertexArray> m_vao;
-    
-    VertexBuffer* m_ref_vbo = nullptr;
-    IndexBuffer* m_ref_ibo = nullptr;
+    std::vector<Vertex> m_vertices;
+    std::vector<uint32_t> m_indices;
+    uint32_t m_offset=0;
 public:
     ChunkMesh();
+    ChunkMesh(const ChunkContext& ctx);
     ~ChunkMesh();
+    
+    void Build();
+    void Update();
+    void ClearCPU();
 
-    const std::vector<float>& Getm_vertices() const { return m_vertices; }
-    const std::vector<uint32_t>& Getm_indices() const { return m_indices; }
+    void SetChunk(const ChunkContext& ctx) { m_chunkContext = std::make_unique<ChunkContext>(ctx); }
 
-    void Draw(Renderer& renderer, Camera& camera);
-
-    void Build(const ChunkContext& chunkContext);
-    void Update(const ChunkContext& chunkContext);
+    const std::vector<Vertex>& GetVertices() const { return m_vertices; }
+    const std::vector<uint32_t>& GetIndices() const { return m_indices; }
 private:
-    void GenerateGeometry(const ChunkContext& chunkContext);
+    void GenerateGeometry();
 
-    bool ShouldRenderFace(const ChunkContext& ctx, int32_t x, int32_t y, int32_t z, Direction direction);
-    void AddFace(float x, float y, float z, Direction direction);
+    bool ShouldRenderFace(int32_t x, int32_t y, int32_t z, Direction direction);
+    void AddFace(float x, float y, float z, Direction direction, Block block);
 };

@@ -35,11 +35,9 @@ unsigned int ShaderDataTypeToGLType(ShaderDataType type) {
 
 VertexArray::VertexArray() {
     glGenVertexArrays(1, &ID);
-    std::cout << "Creating VAO: " << ID << std::endl;
 }
 
 VertexArray::~VertexArray() {
-    std::cout << "Deleting VAO: " << ID << std::endl;
     glDeleteVertexArrays(1, &ID);
 }
 

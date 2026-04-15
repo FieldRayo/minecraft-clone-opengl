@@ -20,4 +20,6 @@ public:
     void UnBind() const;
     void Active() const;
     void Load(const std::initializer_list<std::string>& path);
+
+    unsigned int GetID(int index = 0) const { return IDs[index]; }
 };

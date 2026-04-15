@@ -4,62 +4,33 @@
 #include "renderer/VertexBuffer.h"
 #include "renderer/IndexBuffer.h"
 #include "renderer/Renderer.h"
+#include "renderer/Texture.h"
 #include "core/Camera.h"
 
-ChunkMesh::ChunkMesh() {
-    m_vao = std::make_unique<VertexArray>();
+ChunkMesh::ChunkMesh(const ChunkContext& ctx) {
+    m_chunkContext = std::make_unique<ChunkContext>(ctx);
 }
 
-ChunkMesh::~ChunkMesh() {
-    m_vao->UnBind();
-    m_ref_vbo = nullptr;
-    m_ref_ibo = nullptr;
+ChunkMesh::~ChunkMesh() = default;
+
+void ChunkMesh::Build() {
+    ClearCPU();
+    GenerateGeometry();
 }
 
-void ChunkMesh::Draw(Renderer& renderer, Camera& camera) {
-    renderer.Draw(*m_vao, camera);
+void ChunkMesh::Update() {
+    ClearCPU();
+    GenerateGeometry();
 }
 
-void ChunkMesh::Build(const ChunkContext& chunkContext) {
+void ChunkMesh::ClearCPU() {
     m_vertices.clear();
     m_indices.clear();
-    offset = 0;
-
-    GenerateGeometry(chunkContext);
-    
-    auto vbo = std::make_unique<VertexBuffer>(m_vertices.data(), m_vertices.size() * sizeof(float));
-    auto ibo = std::make_unique<IndexBuffer>(m_indices.data(), m_indices.size());
-
-    m_ref_vbo = vbo.get();
-    m_ref_ibo = ibo.get();
-
-    BufferLayout layout;
-    layout.Push<glm::vec3>("aPos");
-
-    m_vao = std::make_unique<VertexArray>();
-    m_vao->AddVertexBuffer(std::move(vbo), layout);
-    m_vao->SetIndexBuffer(std::move(ibo));
+    m_offset = 0;
 }
 
-void ChunkMesh::Update(const ChunkContext& chunkContext) {
-    m_vertices.clear();
-    m_indices.clear();
-    offset = 0;
-    
-    GenerateGeometry(chunkContext);
-
-    // Update
-    m_ref_vbo->SetData(m_vertices.data(), m_vertices.size() * sizeof(float));
-    m_ref_ibo->SetData(m_indices.data(), m_indices.size() * sizeof(unsigned int));
-}
-
-void ChunkMesh::GenerateGeometry(const ChunkContext& chunkContext) {
-    Chunk chunk = chunkContext.Center;
-    
-    if (chunk.GetBlock(0, 0, 0).GetType() == BlockType::Grass)
-        std::cout << "Grass!" << std::endl;
-    else
-        std::cout << "NoGrass" << std::endl;
+void ChunkMesh::GenerateGeometry() {
+    Chunk chunk = m_chunkContext->Center;
 
     float cordX = chunk.GetPosition().x;
     float cordY = chunk.GetPosition().y;
@@ -72,21 +43,21 @@ void ChunkMesh::GenerateGeometry(const ChunkContext& chunkContext) {
 
         if (!block.IsSolid())
             continue;
-        
+
         for(auto& dir : { 
                     Direction::Right, Direction::Left,
                     Direction::Top, Direction::Bottom,
                     Direction::Front, Direction::Back
                 }) {
-            if (ShouldRenderFace(chunkContext, x, y, z, dir))
-                AddFace(x+cordX, y+cordY, z+cordZ, dir);
+            if (ShouldRenderFace(x, y, z, dir))
+                AddFace(x+cordX, y+cordY, z+cordZ, dir, block);
         }
 
     }
 }
 
-bool ChunkMesh::ShouldRenderFace(const ChunkContext& ctx, int32_t x, int32_t y, int32_t z, Direction direction) {
-    const Chunk& chunk = ctx.Center;
+bool ChunkMesh::ShouldRenderFace(int32_t x, int32_t y, int32_t z, Direction direction) {
+    const Chunk& chunk = m_chunkContext->Center;
     const Chunk* adj = nullptr;
 
     auto isAir = [&](int nx, int ny, int nz, const Chunk* adjacent) {
@@ -99,37 +70,37 @@ bool ChunkMesh::ShouldRenderFace(const ChunkContext& ctx, int32_t x, int32_t y, 
     switch (direction) {
         case Direction::Right : { 
             if (x + 1 >= CHUNK_SIZE_X) {
-                return isAir(0, y, z, ctx.Right);
+                return isAir(0, y, z, m_chunkContext->Right);
             }
             return !chunk.GetBlock(x + 1, y, z).IsSolid();
         }
         case Direction::Left : { 
             if (x == 0) {
-                return isAir(CHUNK_SIZE_X-1, y, z, ctx.Left);
+                return isAir(CHUNK_SIZE_X-1, y, z, m_chunkContext->Left);
             }
             return !chunk.GetBlock(x - 1, y, z).IsSolid();
         }
         case Direction::Top : { 
             if (y + 1 >= CHUNK_SIZE_Y) {
-                return isAir(x, 0, z, ctx.Top);
+                return isAir(x, 0, z, m_chunkContext->Top);
             }
             return !chunk.GetBlock(x, y + 1, z).IsSolid();
         }
         case Direction::Bottom : { 
             if (y == 0) {
-                return isAir(x, CHUNK_SIZE_Y-1, z, ctx.Bottom);
+                return isAir(x, CHUNK_SIZE_Y-1, z, m_chunkContext->Bottom);
             }
             return !chunk.GetBlock(x, y - 1, z).IsSolid();
         }
         case Direction::Front : { 
             if (z + 1 >= CHUNK_SIZE_Z) {
-                return isAir(x, y, 0, ctx.Front);
+                return isAir(x, y, 0, m_chunkContext->Front);
             }
             return !chunk.GetBlock(x, y, z + 1).IsSolid();
         }
         case Direction::Back : { 
             if (z == 0) {
-                return isAir(x, y, CHUNK_SIZE_Z-1, ctx.Back);
+                return isAir(x, y, CHUNK_SIZE_Z-1, m_chunkContext->Back);
             }
             return !chunk.GetBlock(x, y, z - 1).IsSolid();
         }
@@ -138,80 +109,77 @@ bool ChunkMesh::ShouldRenderFace(const ChunkContext& ctx, int32_t x, int32_t y, 
     return false;
 }
 
-void ChunkMesh::AddFace(float x, float y, float z, Direction direction) {
+void ChunkMesh::AddFace(float x, float y, float z, Direction direction, Block block) {
+    BlockTextures textures = GetBlockTextures(block.GetType());
+
     switch (direction) {
-        case Direction::Right : {
-            m_vertices.insert(m_vertices.end(), {
-                x+1, y,   z,
-                x+1, y,   z+1,
-                x+1, y+1, z+1,
-                x+1, y+1, z
-            });
 
-            break;
-        }
+    case Direction::Right: {
+        m_vertices.insert(m_vertices.end(), {
+            Vertex{ glm::vec3(x+1, y,   z  ) },
+            Vertex{ glm::vec3(x+1, y,   z+1) },
+            Vertex{ glm::vec3(x+1, y+1, z+1) },
+            Vertex{ glm::vec3(x+1, y+1, z  ) }
+        });
+        break;
+    }
 
-        case Direction::Left : {
-            m_vertices.insert(m_vertices.end(), {
-                x, y,   z,
-                x, y+1, z,
-                x, y+1, z+1,
-                x, y,   z+1
-            });
+    case Direction::Left: {
+        m_vertices.insert(m_vertices.end(), {
+            Vertex{ glm::vec3(x, y,   z  ) },
+            Vertex{ glm::vec3(x, y,   z+1) },
+            Vertex{ glm::vec3(x, y+1, z+1) },
+            Vertex{ glm::vec3(x, y+1, z  ) }
+        });
+        break;
+    }
 
-            break;
-        }
+    case Direction::Top: {
+        m_vertices.insert(m_vertices.end(), {
+            Vertex{ glm::vec3(x,   y+1, z  ) },
+            Vertex{ glm::vec3(x+1, y+1, z  ) },
+            Vertex{ glm::vec3(x+1, y+1, z+1) },
+            Vertex{ glm::vec3(x,   y+1, z+1) }
+        });
+        break;
+    }
 
-        case Direction::Top : {
-            m_vertices.insert(m_vertices.end(), {
-                x,   y+1, z,
-                x+1, y+1, z,
-                x+1, y+1, z+1,
-                x,   y+1, z+1
-            });
+    case Direction::Bottom: {
+        m_vertices.insert(m_vertices.end(), {
+            Vertex{ glm::vec3(x,   y, z  ) },
+            Vertex{ glm::vec3(x,   y, z+1) },
+            Vertex{ glm::vec3(x+1, y, z+1) },
+            Vertex{ glm::vec3(x+1, y, z  ) }
+        });
+        break;
+    }
 
-            break;
-        }
+    case Direction::Front: {
+        m_vertices.insert(m_vertices.end(), {
+            Vertex{ glm::vec3(x,   y,   z+1) },
+            Vertex{ glm::vec3(x+1, y,   z+1) },
+            Vertex{ glm::vec3(x+1, y+1, z+1) },
+            Vertex{ glm::vec3(x,   y+1, z+1) }
+        });
+        break;
+    }
 
-        case Direction::Bottom : {
-            m_vertices.insert(m_vertices.end(), {
-                x,   y, z,
-                x+1, y, z,
-                x+1, y, z+1,
-                x,   y, z+1
-            });
+    case Direction::Back: {
+        m_vertices.insert(m_vertices.end(), {
+            Vertex{ glm::vec3(x,   y,   z) },
+            Vertex{ glm::vec3(x,   y+1, z) },
+            Vertex{ glm::vec3(x+1, y+1, z) },
+            Vertex{ glm::vec3(x+1, y,   z) }
+        });
+        break;
+    }
 
-            break;
-        }
-
-        case Direction::Front : {
-            m_vertices.insert(m_vertices.end(), {
-                x,   y,   z+1,
-                x+1, y,   z+1,
-                x+1, y+1, z+1,
-                x,   y+1, z+1
-            });
-
-            break;
-        }
-
-        case Direction::Back : {
-            m_vertices.insert(m_vertices.end(), {
-                x,   y,   z,
-                x,   y+1, z,
-                x+1, y+1, z,
-                x+1, y,   z
-            });
-
-            break;
-        }
     }
 
     m_indices.insert(m_indices.end(), {
-        offset, offset+1, offset+2,
-        offset+2, offset+3, offset
+        m_offset, m_offset+1, m_offset+2,
+        m_offset+2, m_offset+3, m_offset
     });
-
-    offset += 4;
+    m_offset += 4;
 }
 
