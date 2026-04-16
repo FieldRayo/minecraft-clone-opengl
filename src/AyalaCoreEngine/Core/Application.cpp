@@ -12,11 +12,11 @@
 #include "Window.h"
 #include "Input.h"
 #include "Camera.h"
-#include "renderer/Renderer.h"
-#include "renderer/Shader.h"
-#include "voxel/ChunkMesh.h"
-#include "voxel/Chunk.h"
-#include "renderer/Texture.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/Shader.h"
+#include "Voxel/ChunkMesh.h"
+#include "Voxel/Chunk.h"
+#include "Renderer/Texture.h"
 
 namespace ACE {
     

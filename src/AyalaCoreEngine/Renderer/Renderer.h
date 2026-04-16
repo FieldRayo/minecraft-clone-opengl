@@ -4,7 +4,7 @@
 
 #include "Shader.h"
 #include "Mesh.h"
-#include "core/Camera.h"
+#include "Core/Camera.h"
 
 namespace ACE {
     

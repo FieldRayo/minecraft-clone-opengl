@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-#include "core/Assert.h"
+#include "Core/Assert.h"
 
 namespace ACE {
     

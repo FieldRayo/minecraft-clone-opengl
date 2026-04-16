@@ -5,7 +5,7 @@
 
 #include <glad/glad.h>
 
-#include "core/Assert.h"
+#include "Core/Assert.h"
 
 namespace ACE {
     

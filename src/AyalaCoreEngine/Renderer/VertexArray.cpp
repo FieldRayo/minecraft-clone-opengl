@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "core/Assert.h"
+#include "Core/Assert.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 

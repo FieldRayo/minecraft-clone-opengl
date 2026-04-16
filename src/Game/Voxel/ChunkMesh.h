@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "Chunk.h"
-#include "renderer/Mesh.h"
+#include "AyalaCoreEngine/Renderer/Mesh.h"
 
 class VertexArray;
 class VertexBuffer;

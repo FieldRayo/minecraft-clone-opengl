@@ -1,11 +1,11 @@
 #include "ChunkMesh.h"
 
-#include "renderer/VertexArray.h"
-#include "renderer/VertexBuffer.h"
-#include "renderer/IndexBuffer.h"
-#include "renderer/Renderer.h"
-#include "renderer/Texture.h"
-#include "core/Camera.h"
+#include "AyalaCoreEngine/Renderer/VertexArray.h"
+#include "AyalaCoreEngine/Renderer/VertexBuffer.h"
+#include "AyalaCoreEngine/Renderer/IndexBuffer.h"
+#include "AyalaCoreEngine/Renderer/Renderer.h"
+#include "AyalaCoreEngine/Renderer/Texture.h"
+#include "AyalaCoreEngine/Core/Camera.h"
 
 ChunkMesh::ChunkMesh(const ChunkContext& ctx) {
     m_chunkContext = std::make_unique<ChunkContext>(ctx);

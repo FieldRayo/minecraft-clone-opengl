@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "core/Application.h"
+#include "AyalaCoreEngine/Core/Application.h"
 
 int main() {
     ACE::Application app;

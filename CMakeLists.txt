@@ -27,6 +27,8 @@ target_include_directories(OpenGL PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/external/stb
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AyalaCoreEngine
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Game
 )
 
 target_compile_definitions(OpenGL PRIVATE
