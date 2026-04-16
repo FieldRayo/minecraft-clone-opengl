@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+namespace ACE {
+
 uint32_t ShaderDataTypeSize(ShaderDataType type) {
     switch (type) {
         case ShaderDataType::Float  : return 4;
@@ -74,5 +76,7 @@ void BufferLayout::CalculateOffsetsAndStride() {
         offset += size;
         m_stride += size;
     }
+}
+
 }
 

@@ -2,11 +2,12 @@
 
 #include <memory>
 
-// Forward declarations
+namespace ACE {
+
 class Window;
 class Renderer;
 class Camera;
-
+    
 class Application {
     bool m_running = false;
 public:
@@ -24,3 +25,6 @@ private:
     void Update(float deltaTime);
     void Render();
 };
+
+}
+

@@ -4,7 +4,7 @@
 #include "core/Application.h"
 
 int main() {
-    Application app;
+    ACE::Application app;
     app.Run();
     return 0;
 }

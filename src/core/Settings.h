@@ -2,6 +2,8 @@
 
 #include <string>
 
+namespace ACE {
+    
 struct RuntimeSettings {
     int windowWidth = 1080;
     int windowHeight = 720;
@@ -16,3 +18,6 @@ public:
         return instance;
     }
 };
+
+}
+

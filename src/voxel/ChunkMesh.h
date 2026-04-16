@@ -20,7 +20,7 @@ enum class Direction { Right, Left, Top, Bottom, Front, Back };
 class ChunkMesh {
     std::unique_ptr<ChunkContext> m_chunkContext;
 
-    std::vector<Vertex> m_vertices;
+    std::vector<ACE::Vertex> m_vertices;
     std::vector<uint32_t> m_indices;
     uint32_t m_offset=0;
 public:
@@ -34,7 +34,7 @@ public:
 
     void SetChunk(const ChunkContext& ctx) { m_chunkContext = std::make_unique<ChunkContext>(ctx); }
 
-    const std::vector<Vertex>& GetVertices() const { return m_vertices; }
+    const std::vector<ACE::Vertex>& GetVertices() const { return m_vertices; }
     const std::vector<uint32_t>& GetIndices() const { return m_indices; }
 private:
     void GenerateGeometry();

@@ -5,6 +5,8 @@
 
 #include "BufferLayout.h"
 
+namespace ACE {
+    
 class VertexBuffer;
 class IndexBuffer;
 class BufferLayout;
@@ -37,3 +39,6 @@ public:
     const std::vector<std::unique_ptr<VertexBuffer>>& GetVertexBuffers() const { return m_vertexBuffers; }
     const std::unique_ptr<IndexBuffer>& GetIndexBuffer() const { return m_indexBuffer; }
 };
+
+}
+

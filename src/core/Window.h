@@ -6,6 +6,8 @@
 #include <string>
 #include <memory>
 
+namespace ACE {
+    
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 class Window {
@@ -33,3 +35,6 @@ public:
     void PollEvents();
 private:
 };
+
+}
+

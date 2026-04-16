@@ -9,6 +9,8 @@
 
 #include "core/Assert.h"
 
+namespace ACE {
+    
 enum class ShaderDataType {
     None = 0,
     Float, Float2, Float3, Float4,
@@ -71,3 +73,6 @@ public:
 private:
     void CalculateOffsetsAndStride();
 };
+
+}
+

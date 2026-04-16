@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+namespace ACE {
+    
 class VertexBuffer {
     unsigned int ID;
     const void* Data;
@@ -23,3 +25,6 @@ public:
 
     const void* GetData() const { return Data; }
 };
+
+}
+

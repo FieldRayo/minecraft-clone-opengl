@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <iostream>
 
+namespace ACE {
+    
 VertexBuffer::VertexBuffer(uint32_t size) {
     glGenBuffers(1, &ID);
 
@@ -52,5 +54,7 @@ void VertexBuffer::UnBind() const {
 void VertexBuffer::SetData(const void* data, uint32_t size) {
     Bind();
     glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+}
+
 }
 

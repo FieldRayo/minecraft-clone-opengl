@@ -1,5 +1,7 @@
 #include "Input.h"
 
+namespace ACE {
+    
 GLFWwindow* Input::s_window = nullptr;
 
 void Input::Init(GLFWwindow* window) {
@@ -24,5 +26,7 @@ double Input::GetMouseY() {
     double x, y;
     glfwGetCursorPos(s_window, &x, &y);
     return y;
+}
+
 }
 

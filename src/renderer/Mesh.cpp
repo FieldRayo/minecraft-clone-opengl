@@ -5,6 +5,8 @@
 #include "IndexBuffer.h"
 #include "BufferLayout.h"
 
+namespace ACE {
+    
 Mesh::Mesh() {
     m_vao = std::make_unique<VertexArray>();
 }
@@ -42,5 +44,7 @@ void Mesh::ClearGPU() {
 
 void Mesh::Bind() const {
     m_vao->Bind();
+}
+
 }
 

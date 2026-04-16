@@ -116,60 +116,60 @@ void ChunkMesh::AddFace(float x, float y, float z, Direction direction, Block bl
 
     case Direction::Right: {
         m_vertices.insert(m_vertices.end(), {
-            Vertex{ glm::vec3(x+1, y,   z  ) },
-            Vertex{ glm::vec3(x+1, y,   z+1) },
-            Vertex{ glm::vec3(x+1, y+1, z+1) },
-            Vertex{ glm::vec3(x+1, y+1, z  ) }
+                ACE::Vertex{ glm::vec3(x+1, y,   z  ) },
+                ACE::Vertex{ glm::vec3(x+1, y,   z+1) },
+                ACE::Vertex{ glm::vec3(x+1, y+1, z+1) },
+                ACE::Vertex{ glm::vec3(x+1, y+1, z  ) }
         });
         break;
     }
 
     case Direction::Left: {
         m_vertices.insert(m_vertices.end(), {
-            Vertex{ glm::vec3(x, y,   z  ) },
-            Vertex{ glm::vec3(x, y,   z+1) },
-            Vertex{ glm::vec3(x, y+1, z+1) },
-            Vertex{ glm::vec3(x, y+1, z  ) }
+                ACE::Vertex{ glm::vec3(x, y,   z  ) },
+                ACE::Vertex{ glm::vec3(x, y,   z+1) },
+                ACE::Vertex{ glm::vec3(x, y+1, z+1) },
+                ACE::Vertex{ glm::vec3(x, y+1, z  ) }
         });
         break;
     }
 
     case Direction::Top: {
         m_vertices.insert(m_vertices.end(), {
-            Vertex{ glm::vec3(x,   y+1, z  ) },
-            Vertex{ glm::vec3(x+1, y+1, z  ) },
-            Vertex{ glm::vec3(x+1, y+1, z+1) },
-            Vertex{ glm::vec3(x,   y+1, z+1) }
+                ACE::Vertex{ glm::vec3(x,   y+1, z  ) },
+                ACE::Vertex{ glm::vec3(x+1, y+1, z  ) },
+                ACE::Vertex{ glm::vec3(x+1, y+1, z+1) },
+                ACE::Vertex{ glm::vec3(x,   y+1, z+1) }
         });
         break;
     }
 
     case Direction::Bottom: {
         m_vertices.insert(m_vertices.end(), {
-            Vertex{ glm::vec3(x,   y, z  ) },
-            Vertex{ glm::vec3(x,   y, z+1) },
-            Vertex{ glm::vec3(x+1, y, z+1) },
-            Vertex{ glm::vec3(x+1, y, z  ) }
+                ACE::Vertex{ glm::vec3(x,   y, z  ) },
+                ACE::Vertex{ glm::vec3(x,   y, z+1) },
+                ACE::Vertex{ glm::vec3(x+1, y, z+1) },
+                ACE::Vertex{ glm::vec3(x+1, y, z  ) }
         });
         break;
     }
 
     case Direction::Front: {
         m_vertices.insert(m_vertices.end(), {
-            Vertex{ glm::vec3(x,   y,   z+1) },
-            Vertex{ glm::vec3(x+1, y,   z+1) },
-            Vertex{ glm::vec3(x+1, y+1, z+1) },
-            Vertex{ glm::vec3(x,   y+1, z+1) }
+                ACE::Vertex{ glm::vec3(x,   y,   z+1) },
+                ACE::Vertex{ glm::vec3(x+1, y,   z+1) },
+                ACE::Vertex{ glm::vec3(x+1, y+1, z+1) },
+                ACE::Vertex{ glm::vec3(x,   y+1, z+1) }
         });
         break;
     }
 
     case Direction::Back: {
         m_vertices.insert(m_vertices.end(), {
-            Vertex{ glm::vec3(x,   y,   z) },
-            Vertex{ glm::vec3(x,   y+1, z) },
-            Vertex{ glm::vec3(x+1, y+1, z) },
-            Vertex{ glm::vec3(x+1, y,   z) }
+                ACE::Vertex{ glm::vec3(x,   y,   z) },
+                ACE::Vertex{ glm::vec3(x,   y+1, z) },
+                ACE::Vertex{ glm::vec3(x+1, y+1, z) },
+                ACE::Vertex{ glm::vec3(x+1, y,   z) }
         });
         break;
     }

@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+namespace ACE {
+    
 class IndexBuffer {
     unsigned int ID;
     uint32_t Count;
@@ -24,3 +26,6 @@ public:
 
     void SetData(const uint32_t* indices, uint32_t count);
 };
+
+}
+

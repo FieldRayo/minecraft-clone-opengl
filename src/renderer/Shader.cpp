@@ -5,6 +5,8 @@
 
 #include <glad/glad.h>
 
+namespace ACE {
+    
 Shader::Shader(const std::vector<ShaderSource>& shaders) {
     std::vector<unsigned int> compileShaders;
     for(auto& s : shaders)
@@ -120,5 +122,7 @@ int Shader::getUniformLocation(const std::string& name) {
     int location = glGetUniformLocation(ID, name.c_str());
     m_uniformCache[name] = location;
     return location;
+}
+
 }
 

@@ -8,6 +8,8 @@
 
 #include "IndexBuffer.h"
 
+namespace ACE {
+    
 Renderer::Renderer() = default;
 
 Renderer::~Renderer() = default;
@@ -29,3 +31,6 @@ void Renderer::Draw(const Mesh& mesh, const Camera& camera) {
         nullptr
     );
 }
+
+}
+

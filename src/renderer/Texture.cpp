@@ -7,6 +7,8 @@
 
 #include "core/Assert.h"
 
+namespace ACE {
+    
 Texture::Texture() {
     stbi_set_flip_vertically_on_load(true);
     glGenTextures(1, IDs.data());
@@ -72,5 +74,7 @@ void Texture::Load(const std::initializer_list<std::string>& paths) {
         ACE_ASSERT(false, "Failed to load texture!");
     }
     m_Textures = i;
+}
+
 }
 

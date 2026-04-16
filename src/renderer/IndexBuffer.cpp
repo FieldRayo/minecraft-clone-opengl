@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+namespace ACE {
+    
 IndexBuffer::IndexBuffer() {
     glGenBuffers(1, &ID);
 }
@@ -45,5 +47,7 @@ void IndexBuffer::SetData(const uint32_t* indices, uint32_t count) {
     Bind();
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, count*sizeof(uint32_t), indices);
     Count = count;
+}
+
 }
 

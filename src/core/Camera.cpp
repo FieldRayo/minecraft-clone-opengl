@@ -8,6 +8,8 @@
 
 #include "Input.h"
 
+namespace ACE {
+    
 void Camera::Update(float deltaTime)
 {
     float velocity = Speed * deltaTime;
@@ -64,5 +66,7 @@ glm::mat4 Camera::GetProjectionMatrix() const {
         NearPlane,
         FarPlane
     );
+}
+
 }
 

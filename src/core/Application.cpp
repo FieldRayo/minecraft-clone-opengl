@@ -18,6 +18,8 @@
 #include "voxel/Chunk.h"
 #include "renderer/Texture.h"
 
+namespace ACE {
+    
 double mousePosX, mousePosY;
 
 Application::Application() {
@@ -175,6 +177,7 @@ void Application::Render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_renderer->GetShader()->use();
+
     m_renderer->GetShader()->setVec3("uCol", { 1.0f, 0.0f, 0.0f });
     Mesh mesh;
     mesh.Upload(chunkMesh->GetVertices(), chunkMesh->GetIndices());
@@ -184,5 +187,7 @@ void Application::Render() {
     Mesh mesh2;
     mesh2.Upload(chunkMesh2->GetVertices(), chunkMesh2->GetIndices());
     m_renderer->Draw(mesh2, *m_camera);
+}
+
 }
 

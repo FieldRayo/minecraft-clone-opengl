@@ -6,6 +6,8 @@
 
 #include "Settings.h"
 
+namespace ACE {
+    
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -90,4 +92,6 @@ bool Window::Init() {
 void Window::SwapBuffers() { glfwSwapBuffers(m_window); }
 
 void Window::PollEvents() { glfwPollEvents(); }
+
+}
 

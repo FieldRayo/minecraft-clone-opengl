@@ -6,7 +6,8 @@
 #include "Mesh.h"
 #include "core/Camera.h"
 
-// Forward declarations
+namespace ACE {
+    
 class Shader;
 
 class Renderer {
@@ -20,3 +21,6 @@ public:
     void Draw(const Mesh& mesh, const Camera& camera);
 private:
 };
+
+}
+

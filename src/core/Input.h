@@ -2,6 +2,8 @@
 
 #include <GLFW/glfw3.h>
 
+namespace ACE {
+    
 class Input {
     static GLFWwindow* s_window;
 
@@ -14,3 +16,6 @@ public:
     static double GetMouseX();
     static double GetMouseY();
 };
+
+}
+

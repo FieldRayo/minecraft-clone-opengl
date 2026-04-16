@@ -10,6 +10,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
+namespace ACE {
+    
 unsigned int ShaderDataTypeToGLType(ShaderDataType type) {
     switch(type) {
         case ShaderDataType::Float  : return GL_FLOAT;
@@ -101,5 +103,7 @@ void VertexArray::SetIndexBuffer(std::unique_ptr<IndexBuffer> indexBuffer) {
     Bind();
     indexBuffer->Bind();
     m_indexBuffer = std::move(indexBuffer);
+}
+
 }
 

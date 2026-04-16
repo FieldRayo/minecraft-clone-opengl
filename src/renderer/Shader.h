@@ -8,6 +8,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+namespace ACE {
+    
 struct ShaderSource {
     unsigned int type;
     std::string path;
@@ -37,4 +39,6 @@ private:
     unsigned int CompileShader(const ShaderSource& ss);
     int getUniformLocation(const std::string& name);
 };
+
+}
 

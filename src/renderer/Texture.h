@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <vector>
 
+namespace ACE {
+    
 class Texture {
     std::vector<unsigned int> IDs;
     int32_t m_Textures = 0;
@@ -23,3 +25,6 @@ public:
 
     unsigned int GetID(int index = 0) const { return IDs[index]; }
 };
+
+}
+

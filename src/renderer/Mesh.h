@@ -5,6 +5,8 @@
 
 #include <glm/glm.hpp>
 
+namespace ACE {
+    
 class VertexArray;
 class VertexBuffer;
 class IndexBuffer;
@@ -34,4 +36,6 @@ public:
     const VertexArray& GetVAO() const { return *m_vao; }
     uint32_t GetIndicesCount() const { return m_indices; }
 };
+
+}
 
