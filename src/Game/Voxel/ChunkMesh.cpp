@@ -1,5 +1,7 @@
 #include "ChunkMesh.h"
 
+#include <iostream>
+
 #include "AyalaCoreEngine/Renderer/VertexArray.h"
 #include "AyalaCoreEngine/Renderer/VertexBuffer.h"
 #include "AyalaCoreEngine/Renderer/IndexBuffer.h"
@@ -7,8 +9,10 @@
 #include "AyalaCoreEngine/Renderer/Texture.h"
 #include "AyalaCoreEngine/Core/Camera.h"
 
-ChunkMesh::ChunkMesh(const ChunkContext& ctx) {
-    m_chunkContext = std::make_unique<ChunkContext>(ctx);
+namespace Game {
+    
+ChunkMesh::ChunkMesh(const Chunk& chunk) {
+    m_chunk = std::make_unique<Chunk>(chunk);
 }
 
 ChunkMesh::~ChunkMesh() = default;
@@ -30,19 +34,18 @@ void ChunkMesh::ClearCPU() {
 }
 
 void ChunkMesh::GenerateGeometry() {
-    Chunk chunk = m_chunkContext->Center;
-
-    float cordX = chunk.GetPosition().x;
-    float cordY = chunk.GetPosition().y;
-    float cordZ = chunk.GetPosition().z;
+    float cordX = m_chunk->GetPosition().x;
+    float cordZ = m_chunk->GetPosition().y;
 
     for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
     for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
     for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
-        Block block = chunk.GetBlock(x, y, z);
-
-        if (!block.IsSolid())
+        Block block = m_chunk->GetBlock(x, y, z);
+        
+        if (!block.IsSolid()) {
+            std::cout << "air" << std::endl;
             continue;
+        }
 
         for(auto& dir : { 
                     Direction::Right, Direction::Left,
@@ -50,59 +53,58 @@ void ChunkMesh::GenerateGeometry() {
                     Direction::Front, Direction::Back
                 }) {
             if (ShouldRenderFace(x, y, z, dir))
-                AddFace(x+cordX, y+cordY, z+cordZ, dir, block);
+                AddFace(x+cordX, y, z+cordZ, dir, block);
         }
 
     }
 }
 
 bool ChunkMesh::ShouldRenderFace(int32_t x, int32_t y, int32_t z, Direction direction) {
-    const Chunk& chunk = m_chunkContext->Center;
-    const Chunk* adj = nullptr;
-
     auto isAir = [&](int nx, int ny, int nz, const Chunk* adjacent) {
         if (adjacent != nullptr) {
             return !adjacent->GetBlock(nx, ny, nz).IsSolid();
         }
         return true;
     };
-
+    
+    int32_t chunkX = m_chunk->GetPosition().x;
+    int32_t chunkZ = m_chunk->GetPosition().y;
     switch (direction) {
         case Direction::Right : { 
             if (x + 1 >= CHUNK_SIZE_X) {
-                return isAir(0, y, z, m_chunkContext->Right);
+                return isAir(0, y, z, World::GetChunk({ chunkX + CHUNK_SIZE_X, chunkZ }));
             }
-            return !chunk.GetBlock(x + 1, y, z).IsSolid();
+            return !m_chunk->GetBlock(x + 1, y, z).IsSolid();
         }
         case Direction::Left : { 
             if (x == 0) {
-                return isAir(CHUNK_SIZE_X-1, y, z, m_chunkContext->Left);
+                return isAir(CHUNK_SIZE_X-1, y, z, World::GetChunk({ chunkX - CHUNK_SIZE_X, chunkZ }));
             }
-            return !chunk.GetBlock(x - 1, y, z).IsSolid();
+            return !m_chunk->GetBlock(x - 1, y, z).IsSolid();
         }
         case Direction::Top : { 
             if (y + 1 >= CHUNK_SIZE_Y) {
-                return isAir(x, 0, z, m_chunkContext->Top);
+                return true; 
             }
-            return !chunk.GetBlock(x, y + 1, z).IsSolid();
+            return !m_chunk->GetBlock(x, y + 1, z).IsSolid();
         }
-        case Direction::Bottom : { 
-            if (y == 0) {
-                return isAir(x, CHUNK_SIZE_Y-1, z, m_chunkContext->Bottom);
-            }
-            return !chunk.GetBlock(x, y - 1, z).IsSolid();
-        }
+       case Direction::Bottom : { 
+           if (y == 0) {
+               return true;
+           }
+           return !m_chunk->GetBlock(x, y - 1, z).IsSolid();
+       }
         case Direction::Front : { 
             if (z + 1 >= CHUNK_SIZE_Z) {
-                return isAir(x, y, 0, m_chunkContext->Front);
+                return isAir(x, y, 0, World::GetChunk({ chunkX, chunkZ + CHUNK_SIZE_Z }));
             }
-            return !chunk.GetBlock(x, y, z + 1).IsSolid();
+            return !m_chunk->GetBlock(x, y, z + 1).IsSolid();
         }
         case Direction::Back : { 
             if (z == 0) {
-                return isAir(x, y, CHUNK_SIZE_Z-1, m_chunkContext->Back);
+                return isAir(x, y, CHUNK_SIZE_Z-1, World::GetChunk({ chunkX, chunkZ - CHUNK_SIZE_Z }));
             }
-            return !chunk.GetBlock(x, y, z - 1).IsSolid();
+            return !m_chunk->GetBlock(x, y, z - 1).IsSolid();
         }
     }
 
@@ -181,5 +183,7 @@ void ChunkMesh::AddFace(float x, float y, float z, Direction direction, Block bl
         m_offset+2, m_offset+3, m_offset
     });
     m_offset += 4;
+}
+
 }
 

@@ -1,6 +1,8 @@
 #include "Application.h"
 
 #include <iostream>
+#include <unordered_map>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -14,9 +16,11 @@
 #include "Camera.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
-#include "Voxel/ChunkMesh.h"
-#include "Voxel/Chunk.h"
 #include "Renderer/Texture.h"
+
+#include "Game/Voxel/ChunkMesh.h"
+#include "Game/Voxel/Chunk.h"
+#include "Game/Voxel/World.h"
 
 namespace ACE {
     
@@ -28,43 +32,31 @@ Application::Application() {
 
 Application::~Application() = default;
 
-std::unique_ptr<ChunkMesh> chunkMesh;
-std::unique_ptr<ChunkMesh> chunkMesh2;
-Chunk chunk;
-Chunk chunk2({ 16.0f, 0.0f, 0.0f });
+std::vector<std::unique_ptr<Game::ChunkMesh>> chunkMesh;
+
+Game::World w;
 
 void Application::Run() {
-    // Fill Chunk
-    for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
-    for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
-    for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
-        if (y == CHUNK_SIZE_Y - 1)
-            chunk.SetBlock(Block(1, BlockType::Grass), x, y, z);  // capa top
-        else if (y >= CHUNK_SIZE_Y - 4)
-            chunk.SetBlock(Block(1, BlockType::Dirt), x, y, z);   // capas de dirt
-        else
-            chunk.SetBlock(Block(1, BlockType::Stone), x, y, z);  // resto stone
-    }
-    // Fill Chunk 2
-    for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
-    for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
-    for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
-        if (1)
-            chunk2.SetBlock(Block(1, BlockType::Grass), x, y, z);
-        else
-            chunk2.SetBlock(Block(1, BlockType::Air), x, y, z);
+    w.Build();
+    std::unordered_map<int64_t, Chunk>& renderChunks = w.GetRenderChunks();
+
+    for (auto& [_, c] : renderChunks) {
+        for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
+        for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
+        for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
+            if (1)
+                c.SetBlock(Block(1, BlockType::Grass), x, y, z);
+            else
+                c.SetBlock(Block(0, BlockType::Air), x, y, z);
+        }
+
+        auto cm = std::make_unique<Game::ChunkMesh>(c);
+        chunkMesh.push_back(std::move(cm));
     }
 
-    ChunkContext chunkContext(chunk);
-    ChunkContext chunkContext2(chunk2);
-    chunkContext.Right = &chunk2;
-    chunkContext2.Left = &chunk;
-
-    chunkMesh = std::make_unique<ChunkMesh>(chunkContext);
-    chunkMesh->Build();
-
-    chunkMesh2 = std::make_unique<ChunkMesh>(chunkContext2);
-    chunkMesh2->Build();
+    for (auto& cm : chunkMesh) {
+        cm->Build();
+    }
 
     float lastTime = 0;
     while (m_running && m_window->isOpen()) {
@@ -75,13 +67,18 @@ void Application::Run() {
         Render();
         Update(dt);
 
-        // ImGui 👇
+        // ImGui
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImGui::SetNextWindowSize(ImVec2(0, 0));
         ImGui::Begin("Debug");
-        ImGui::Text("FPS: %.1f", 1.0f / dt);
+        ImGui::Text("FPS: %d", static_cast<int>(1.0f / dt));
+        Chunk* ch = Game::World::GetChunk({ m_camera->GetPosition().x, m_camera->GetPosition().z });
+        if (ch != nullptr)
+            ImGui::Text("Chunk: X: %i Z: %i", ch->GetPosition().x, ch->GetPosition().y);
+        else
+            ImGui::Text("Chunk: X: NaN Z: NaN");
         ImGui::Text("Camera: %.1f %.1f %.1f", 
             m_camera->GetPosition().x,
             m_camera->GetPosition().y,
@@ -148,13 +145,29 @@ void Application::Update(float deltaTime) {
         m_camera->SetSpeed(20.0f);
     else
         m_camera->SetSpeed(10.0f);
-    if (Input::IsKeyPressed(GLFW_KEY_U)) {
-        chunk.SetBlock(Block(1, BlockType::Air), 0, p, 0);
 
-        chunkMesh->Update();
-        chunkMesh2->Update();
-        p++;
+    if (Input::IsKeyPressed(GLFW_KEY_T)) {
+        std::unordered_map<int64_t, Chunk>& renderChunks = w.GetRenderChunks();
+        
+        for (auto& [_, c] : renderChunks) {
+            for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
+            for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
+            for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
+                if (0)
+                    c.SetBlock(Block(1, BlockType::Grass), x, y, z);
+                else
+                    c.SetBlock(Block(0, BlockType::Air), x, y, z);
+            }
+
+
+        }
+
+        for (auto& cm : chunkMesh) {
+            cm->Build();
+        }
+
     }
+
         
     mousePosX = Input::GetMouseX();
     mousePosY = Input::GetMouseY();
@@ -178,15 +191,12 @@ void Application::Render() {
 
     m_renderer->GetShader()->use();
 
-    m_renderer->GetShader()->setVec3("uCol", { 1.0f, 0.0f, 0.0f });
-    Mesh mesh;
-    mesh.Upload(chunkMesh->GetVertices(), chunkMesh->GetIndices());
-    m_renderer->Draw(mesh, *m_camera);
-
-    m_renderer->GetShader()->setVec3("uCol", { 0.0f, 1.0f, 0.0f });
-    Mesh mesh2;
-    mesh2.Upload(chunkMesh2->GetVertices(), chunkMesh2->GetIndices());
-    m_renderer->Draw(mesh2, *m_camera);
+    for (auto& cm : chunkMesh) {
+        m_renderer->GetShader()->setVec3("uCol", { 1.0f, 0.0f, 0.0f });
+        Mesh mesh;
+        mesh.Upload(cm->GetVertices(), cm->GetIndices());
+        m_renderer->Draw(mesh, *m_camera);
+    }
 }
 
 }

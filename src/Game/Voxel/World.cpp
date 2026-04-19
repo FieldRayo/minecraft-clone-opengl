@@ -1,1 +1,104 @@
 #include "World.h"
+
+#include <iostream>
+#include <cmath>
+
+namespace Game {
+
+WorldSettings defaultSettings;
+WorldSettings World::worldSettings = defaultSettings;
+
+std::unordered_map<int64_t, Chunk> World::m_renderChunks;
+
+World::World() {
+    
+}
+
+World::World(const WorldSettings& settings) {
+    SetWorldSettings(settings);
+    //m_renderChunks.posize(worldSettings.RenderDistance);
+}
+
+World::~World() {
+
+}
+
+void World::Build() {
+
+    // --- Chunk Generation ---
+    //          Top
+    //       [0][1][2]
+    //  Left [3][X][5] Right
+    //       [6][7][8]
+    //         Button
+    //
+    //  First: 1, 5, 7, 3 n_layer*8 - 4
+    //  Then: 0, 2, 8, 6 Allways 4 chunks
+
+    for(int32_t layer = 0; layer < worldSettings.RenderDistance; ++layer) {
+        uint32_t n_chunks = layer*8;
+
+        int32_t n = n_chunks / 4;
+        int32_t baseOffset = -(n * (int32_t)CHUNK_SIZE_X) / 2;
+        int32_t stride = CHUNK_SIZE_X; // Cambiar universalidad
+
+        for(uint32_t c = 0; c <= n; ++c) {
+            Chunk chunk;
+
+            int32_t pos = baseOffset + c*stride;
+            
+            glm::ivec2 position;
+
+            position = { pos, layer*CHUNK_SIZE_Z };
+            if (m_renderChunks.find(GetChunkKey(position)) == m_renderChunks.end()) {
+                chunk.SetPosition(position);
+                m_renderChunks[GetChunkKey(position)] = chunk;
+            }
+
+            position = { layer*CHUNK_SIZE_X, pos };
+            if (m_renderChunks.find(GetChunkKey(position)) == m_renderChunks.end()) {
+                chunk.SetPosition(position);
+                m_renderChunks[GetChunkKey(position)] = chunk;
+            }
+
+            position = { -pos, -(float)layer*CHUNK_SIZE_Z };
+            if (m_renderChunks.find(GetChunkKey(position)) == m_renderChunks.end()) {
+                chunk.SetPosition(position);
+                m_renderChunks[GetChunkKey(position)] = chunk;
+            }
+
+            position = { -layer*CHUNK_SIZE_X, -pos };
+            if (m_renderChunks.find(GetChunkKey(position)) == m_renderChunks.end()) {
+                chunk.SetPosition(position);
+                m_renderChunks[GetChunkKey(position)] = chunk;
+            }
+        }
+    }
+
+}
+
+void World::SetWorldSettings(const WorldSettings& settings) {
+    worldSettings = settings;
+}
+
+int64_t World::GetChunkKey(glm::ivec2 position) {
+    int32_t x = (position.x >= 0) ? (position.x / 16) : ((position.x - 15) / 16);
+    int32_t z = (position.y >= 0) ? (position.y / 16) : ((position.y - 15) / 16);
+
+    uint64_t ux = (uint32_t)x;
+    uint64_t uz = (uint32_t)z;
+
+    return (ux << 32) | (uz);
+}
+
+Chunk* World::GetChunk(glm::ivec2 position) {
+    auto it = World::m_renderChunks.find(GetChunkKey(position));
+
+    if (it == World::m_renderChunks.end())
+        return nullptr;
+
+    return &it->second;
+}
+
+}
+

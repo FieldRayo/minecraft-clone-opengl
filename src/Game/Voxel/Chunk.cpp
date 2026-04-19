@@ -1,8 +1,23 @@
 #include "Chunk.h"
 
-Chunk::Chunk() = default;
+Chunk::Chunk() {
+    static Block air = Block(0, BlockType::Air); // Default block
+    for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
+    for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
+    for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
+        blocks[x][y][z] = air;
+    }
 
-Chunk::Chunk(glm::vec3 position) : Position(position) { }
+}
+
+Chunk::Chunk(glm::ivec2 position) : Position(position) { 
+    static Block air = Block(0, BlockType::Air); // Default block
+    for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
+    for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
+    for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
+        blocks[x][y][z] = air;
+    }
+}
 
 Chunk::~Chunk() = default;
 
@@ -21,17 +36,5 @@ void Chunk::SetBlock(Block block, uint32_t x, uint32_t y, uint32_t z) {
         return;
 
     blocks[x][y][z] = block;
-}
-
-const glm::vec3& Chunk::GetPosition() const { return Position; }
-
-// --- struct: ChunkContext ---
-
-ChunkContext::ChunkContext(const Chunk& chunk) : Center(chunk) {
-
-}
-
-ChunkContext::~ChunkContext() {
-
 }
 
