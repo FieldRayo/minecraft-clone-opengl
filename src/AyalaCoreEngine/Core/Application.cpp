@@ -21,7 +21,7 @@
 #include "Game/Voxel/ChunkMesh.h"
 #include "Game/Voxel/Chunk.h"
 #include "Game/Voxel/World.h"
-#include "Game/Math/PerlinNoise.h"
+#include "Game/Voxel/WorldGen.h"
 
 namespace ACE {
     
@@ -40,30 +40,10 @@ Game::World w;
 void Application::Run() {
     w.Build();
     std::unordered_map<int64_t, Chunk>& renderChunks = w.GetRenderChunks();
-    
-    PerlinNoise::SetSeed(239342523);
-    PerlinNoise::InitPermutation();
+    Game::WorldGen wg(2357391842);
+
     for (auto& [_, c] : renderChunks) {
-        for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) {
-        for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
-
-            float worldX = ((int)x + c.GetPosition().x) * (int)CHUNK_SIZE_X;
-            float worldZ = ((int)z + c.GetPosition().y) * (int)CHUNK_SIZE_Z;
-
-            float noise = PerlinNoise::FractalNoise(
-                { worldX, worldZ },
-                5, 0.3f, 2.0f, 1.0f, 0.001f
-            );
-            noise = (noise + 1.0f) * 0.5f;
-
-            int height = (int)(noise * CHUNK_SIZE_Y);
-            height = glm::clamp(height, 1, (int)CHUNK_SIZE_Y - 1);
-            
-            for(uint32_t y = 0; y < height; ++y)
-                c.SetBlock(Block(1, BlockType::Grass), x, y, z);
-            
-        }
-        }
+        c = wg.ChunkGenerate(c.GetPosition());
 
         auto cm = std::make_unique<Game::ChunkMesh>(c);
         chunkMesh.push_back(std::move(cm));
