@@ -35,6 +35,7 @@ Chunk WorldGen::ChunkGenerate(glm::ivec2 position) {
         int height = (int)(noise * CHUNK_SIZE_Y);
         height = glm::clamp(height, 1, (int)CHUNK_SIZE_Y - 1);
         
+
         for(uint32_t y = 0; y < height; ++y)
             chunk.SetBlock(Block(1, BlockType::Grass), x, y, z);
         

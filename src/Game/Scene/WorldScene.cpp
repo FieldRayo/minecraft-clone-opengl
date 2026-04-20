@@ -1,5 +1,7 @@
 #include "WorldScene.h"
 
-void WorldScene::Load() {
+#include "Voxel/WorldGen.h"
 
+void WorldScene::Load() {
+    
 }

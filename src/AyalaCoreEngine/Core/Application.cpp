@@ -17,6 +17,7 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
+#include "Game/Entities/Entity.h"
 
 #include "Game/Voxel/ChunkMesh.h"
 #include "Game/Voxel/Chunk.h"
