@@ -43,7 +43,6 @@ void ChunkMesh::GenerateGeometry() {
         Block block = m_chunk->GetBlock(x, y, z);
         
         if (!block.IsSolid()) {
-            std::cout << "air" << std::endl;
             continue;
         }
 

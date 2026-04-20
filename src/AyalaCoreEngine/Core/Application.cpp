@@ -21,6 +21,7 @@
 #include "Game/Voxel/ChunkMesh.h"
 #include "Game/Voxel/Chunk.h"
 #include "Game/Voxel/World.h"
+#include "Game/Math/PerlinNoise.h"
 
 namespace ACE {
     
@@ -39,15 +40,29 @@ Game::World w;
 void Application::Run() {
     w.Build();
     std::unordered_map<int64_t, Chunk>& renderChunks = w.GetRenderChunks();
-
+    
+    PerlinNoise::SetSeed(239342523);
+    PerlinNoise::InitPermutation();
     for (auto& [_, c] : renderChunks) {
-        for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) 
-        for (uint32_t y = 0; y < CHUNK_SIZE_Y; ++y)
+        for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x) {
         for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {
-            if (1)
+
+            float worldX = ((int)x + c.GetPosition().x) * (int)CHUNK_SIZE_X;
+            float worldZ = ((int)z + c.GetPosition().y) * (int)CHUNK_SIZE_Z;
+
+            float noise = PerlinNoise::FractalNoise(
+                { worldX, worldZ },
+                5, 0.3f, 2.0f, 1.0f, 0.001f
+            );
+            noise = (noise + 1.0f) * 0.5f;
+
+            int height = (int)(noise * CHUNK_SIZE_Y);
+            height = glm::clamp(height, 1, (int)CHUNK_SIZE_Y - 1);
+            
+            for(uint32_t y = 0; y < height; ++y)
                 c.SetBlock(Block(1, BlockType::Grass), x, y, z);
-            else
-                c.SetBlock(Block(0, BlockType::Air), x, y, z);
+            
+        }
         }
 
         auto cm = std::make_unique<Game::ChunkMesh>(c);
@@ -105,7 +120,7 @@ void Application::Init() {
     m_window->Init();
     Input::Init(m_window->GetHandle());
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -117,7 +132,7 @@ void Application::Init() {
 
     m_renderer->SetShader(std::move(shader));
 
-    // ImGui 👇
+    // ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(m_window->GetHandle(), true);
@@ -142,7 +157,7 @@ void Application::Update(float deltaTime) {
     if (Input::IsKeyPressed(GLFW_KEY_ESCAPE))
         m_running = false;
     if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
-        m_camera->SetSpeed(20.0f);
+        m_camera->SetSpeed(100.0f);
     else
         m_camera->SetSpeed(10.0f);
 
@@ -192,7 +207,7 @@ void Application::Render() {
     m_renderer->GetShader()->use();
 
     for (auto& cm : chunkMesh) {
-        m_renderer->GetShader()->setVec3("uCol", { 1.0f, 0.0f, 0.0f });
+        m_renderer->GetShader()->setVec3("uCol", { 1.0f, 1.0f, 1.0f });
         Mesh mesh;
         mesh.Upload(cm->GetVertices(), cm->GetIndices());
         m_renderer->Draw(mesh, *m_camera);

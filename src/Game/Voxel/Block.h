@@ -38,10 +38,9 @@ class Block {
     uint32_t ID;
     BlockType Type;
 public:
-    Block() = default;
-    ~Block() = default;
-    
+    Block() : ID(0), Type(BlockType::Air) {}
     Block(uint32_t id, BlockType type) : ID(id), Type(type) {}
+    ~Block() = default;
 
     bool IsSolid() const { return Type != BlockType::Air; };
     BlockType GetType() const { return Type; }

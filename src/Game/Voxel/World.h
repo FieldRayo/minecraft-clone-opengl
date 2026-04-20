@@ -10,8 +10,10 @@
 
 namespace Game {
 
+enum class DimentionID { Overworld, Nether, End };
+
 struct WorldSettings {
-    uint32_t RenderDistance = 2;
+    uint32_t RenderDistance = 8;
     uint32_t MaxHeight = 256;
 
     int32_t Seed = 27062007;

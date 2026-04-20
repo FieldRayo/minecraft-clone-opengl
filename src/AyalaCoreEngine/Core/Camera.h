@@ -13,7 +13,7 @@ class Camera{
     float FOV = 70.0f;
     float AspectRadio = 16.0f / 9.0f;
     float NearPlane = 0.01f;
-    float FarPlane = 256.0f;
+    float FarPlane = 1024.0f;
 
     float Yaw = -90.0f;
     float Pitch = 0.0f;
