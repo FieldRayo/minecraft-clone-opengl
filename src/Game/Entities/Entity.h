@@ -19,11 +19,12 @@ class Entity {
 
     glm::vec3 m_position;
     glm::vec3 m_rotation;
-    glm::vec3 m_velocity;
+    glm::vec3 m_velocity = { 0.0f, 0.0f, 0.0f };
     float m_speed = 5.0f;
-    float m_jumpForce;
+    float m_gravity = 0.5f;
+    float m_jumpForce = 0.125f;
 
-    bool IsOnGround;
+    bool IsOnGround=false;
 public:
     uint32_t m_uuid;
     Entity();
@@ -38,12 +39,14 @@ public:
     virtual void SetYaw(float yaw) { m_yaw = yaw; }
     virtual void SetPitch(float pitch) { m_pitch = pitch; }
     virtual void SetRotation(float yaw, float pitch) { m_yaw = yaw; m_pitch = pitch; }
+    virtual void SetVelocity(glm::vec3 velocity) { m_velocity = velocity; }
 
     virtual float GetSpeed() const { return m_speed; };
     virtual glm::vec3 GetEyePosition() const { return m_position; }
-    virtual glm::vec3 GetFeetPosition() { return { m_position.x, m_position.y - m_hitbox.last.y, m_position.z }; };
+    virtual glm::vec3 GetFeetPosition() { return { m_position.x, m_position.y + m_hitbox.last.y, m_position.z }; };
     virtual float GetYaw()  const { return m_yaw; }
     virtual float GetPitch() const { return m_pitch; }
+    virtual glm::vec3 GetVelocity() const { return m_velocity; }
     virtual glm::vec3 GetForward() const;
     virtual glm::vec3 GetRight() const;
 };

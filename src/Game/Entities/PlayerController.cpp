@@ -27,6 +27,8 @@ void PlayerController::Update(Player& player, const InputState& input, float dt)
 		position += right * velocity;
 	if (input.MoveLeft)
 		position -= right * velocity;
+    if (input.Jump)
+        player.Jump();
 
 	// Mouse rotation
 	float yaw = player.GetYaw();

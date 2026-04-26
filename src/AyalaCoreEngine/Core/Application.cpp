@@ -89,6 +89,11 @@ void Application::Run() {
         else
             input.MoveLeft = false;
 
+        if (Input::IsKeyPressed(GLFW_KEY_SPACE))
+            input.Jump = true;
+        else
+            input.Jump = false;
+
         float deltaX = mousePosX - lastMouseX;
         float deltaY = lastMouseY - mousePosY;
 
@@ -102,6 +107,7 @@ void Application::Run() {
         input.MousePosY = mousePosY;
 
         playerController.Update(player, input, dt);
+        player.Update(dt);
 
         m_camera->SetRotation(player.GetYaw(), player.GetPitch());
         m_camera->SetPosition(player.GetEyePosition());

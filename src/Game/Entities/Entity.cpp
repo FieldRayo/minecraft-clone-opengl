@@ -1,6 +1,9 @@
 #include "Entity.h"
 
+#include <iostream>
+
 #include "Math/Random.h"
+#include "Voxel/World.h"
 
 uint32_t GenUUID() {
     Random::Init();
@@ -28,13 +31,26 @@ Entity::~Entity() = default;
 
 void Entity::Update(float dt) {
     if (!IsOnGround)
-        m_position -= m_velocity.y * dt;
+        m_velocity.y -= m_gravity * dt;
+    else if (m_velocity.y < 0)
+        m_velocity.y = 0;
+
+    if (m_velocity.y < -25.0f)
+        m_velocity.y = -25.0f;
+
+    if (World::GetBlock(GetFeetPosition())->IsSolid())
+        IsOnGround = true;
+    else
+        IsOnGround = false;
+
+    m_position.y += m_velocity.y;
+    m_position.x += m_velocity.x * m_speed;
+    m_position.z += m_velocity.z * m_speed;
 }
 
 void Entity::Jump() {
     if (IsOnGround) {
         m_velocity.y = m_jumpForce;
-        IsOnGround = false;
     }
 }
 

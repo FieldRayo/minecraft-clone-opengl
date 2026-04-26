@@ -11,6 +11,7 @@ struct InputState {
     bool MoveBackward;
     bool MoveRight;
     bool MoveLeft;
+    bool Jump;
     float MousePosX;
     float MousePosY;
     float MouseDeltaX;
