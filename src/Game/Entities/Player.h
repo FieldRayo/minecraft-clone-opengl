@@ -2,8 +2,13 @@
 
 #include "Entity.h"
 
+namespace Game {
+    
 class Player : public Entity {
 public:
-    Player();
-    ~Player();
+    Player() = default;
+    ~Player() = default;
 };
+
+}
+

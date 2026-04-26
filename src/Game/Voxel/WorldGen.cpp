@@ -17,8 +17,7 @@ WorldGen::WorldGen(int32_t seed) {
 WorldGen::~WorldGen() = default;
 
 Chunk WorldGen::ChunkGenerate(glm::ivec2 position) {
-    Chunk chunk;
-    chunk.SetPosition(position);
+    Chunk chunk(position);
 
     for (uint32_t x = 0; x < CHUNK_SIZE_X; ++x)
     for (uint32_t z = 0; z < CHUNK_SIZE_Z; ++z) {

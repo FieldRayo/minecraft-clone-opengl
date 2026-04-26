@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "Chunk.h"
+#include "Block.h"
 
 namespace Game {
 
@@ -37,6 +38,7 @@ public:
 
     static int64_t GetChunkKey(glm::ivec2 position);
     static Chunk* GetChunk(glm::ivec2 position);
+    static const Block* GetBlock(glm::ivec3 position);
 };
 
 

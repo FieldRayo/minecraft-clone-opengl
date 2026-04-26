@@ -24,7 +24,6 @@
 #include "Game/Voxel/World.h"
 #include "Game/Voxel/WorldGen.h"
 #include "Game/Entities/Player.h"
-#include "Game/Entities/PlayerController.h"
 
 namespace ACE {
     
@@ -56,56 +55,13 @@ void Application::Run() {
         cm->Build();
     }
 
-    Game::Player player;
-    Game::PlayerController playerController;
-    Game::InputState input;
-
-    player.SetPosition({ 0.0f, 60.0f, 0.0f });
+    Player player;
 
     float lastTime = 0;
-    float lastMouseX, lastMouseY;
     while (m_running && m_window->isOpen()) {
         float currentTime = glfwGetTime();
         float dt = currentTime - lastTime;
         lastTime = currentTime;
-
-        if (Input::IsKeyPressed(GLFW_KEY_W))
-            input.MoveForward = true;
-        else
-            input.MoveForward = false;
-
-        if (Input::IsKeyPressed(GLFW_KEY_S))
-            input.MoveBackward = true;
-        else
-            input.MoveBackward = false;
-
-        if (Input::IsKeyPressed(GLFW_KEY_D))
-            input.MoveRight = true;
-        else
-            input.MoveRight = false;
-
-        if (Input::IsKeyPressed(GLFW_KEY_A))
-            input.MoveLeft = true;
-        else
-            input.MoveLeft = false;
-
-        float deltaX = mousePosX - lastMouseX;
-        float deltaY = lastMouseY - mousePosY;
-
-        input.MouseDeltaX = deltaX;
-        input.MouseDeltaY = deltaY;
-
-        lastMouseX = mousePosX;
-        lastMouseY = mousePosY;
-
-        input.MousePosX = mousePosX;
-        input.MousePosY = mousePosY;
-
-        playerController.Update(player, input, dt);
-
-        m_camera->SetRotation(player.GetYaw(), player.GetPitch());
-        m_camera->SetPosition(player.GetEyePosition());
-        m_camera->Update(dt);
 
         Render();
         Update(dt);
@@ -216,6 +172,7 @@ void Application::Update(float deltaTime) {
     mousePosY = Input::GetMouseY();
 
     static float lastX = 400, lastY = 300;
+    static bool firstMouse = true;
 
     float xoffset = mousePosX - lastX;
     float yoffset = lastY - mousePosY;

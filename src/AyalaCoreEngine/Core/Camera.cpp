@@ -1,38 +1,26 @@
 #include "Camera.h"
 
+#include <iostream>
+
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <iostream>
-
 #include "Input.h"
+#include "Game/Voxel/World.h"
 
 namespace ACE {
     
-void Camera::Update(float deltaTime)
-{
-    float velocity = Speed * deltaTime;
-
-    if (Input::IsKeyPressed(GLFW_KEY_W))
-        Position += Front * velocity;
-
-    if (Input::IsKeyPressed(GLFW_KEY_S))
-        Position -= Front * velocity;
-
-    if (Input::IsKeyPressed(GLFW_KEY_A))
-        Position -= Right * velocity;
-
-    if (Input::IsKeyPressed(GLFW_KEY_D))
-        Position += Right * velocity;
+void Camera::Update(float deltaTime) {
+    UpdateVectors();
 }
 
 void Camera::MouseMovement(float xoffset, float yoffset) {
-    xoffset *= Sensitivity;
-    yoffset *= Sensitivity;
+    //xoffset *= Sensitivity;
+    //yoffset *= Sensitivity;
 
-    Yaw   += xoffset;
-    Pitch += yoffset;
+    //Yaw   += xoffset;
+    //Pitch += yoffset;
 
     if (Pitch > 89.0f) Pitch = 89.0f;
     if (Pitch < -89.0f) Pitch = -89.0f;
